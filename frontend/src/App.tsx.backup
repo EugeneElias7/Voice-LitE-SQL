@@ -1,0 +1,464 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { fetchDataSources, fetchDemoQuestions, fetchModels, fetchSchema, fetchStatus, runTextStream, runVoiceStream, selectDataSource, selectModel, type StreamHandle } from './api'
+import type { DataSource, DemoQuestion, ModelsResponse, PipelineResult, SchemaPayload, StageStatus, StreamEvent, SystemStatus } from './types'
+import { buildAnswerViewModel } from './answerModel'
+import { clearHistory, loadHistory, makeHistoryEntry, type HistoryEntry } from './history'
+import { Sidebar } from './components/Sidebar'
+import { TopBar } from './components/TopBar'
+import { ConversationView } from './components/ConversationView'
+import { QueryComposer } from './components/QueryComposer'
+import { DatabaseExplorerDrawer } from './components/DatabaseExplorerDrawer'
+import { ErrorBanner } from './components/ErrorBanner'
+import { ProcessingTrace } from './components/ProcessingTrace'
+import { TechnicalDetails } from './components/TechnicalDetails'
+import { ModelSwitcher } from './components/ModelSwitcher'
+import { DatabaseSwitcher } from './components/DatabaseSwitcher'
+import { DataVisualizationBG, usePipelineState } from './components/DataVisualizationBG'
+import { FRIENDLY_STAGES, FRIENDLY_META } from './stages'
+
+const HISTORY_STORAGE_KEY = 'voice-lite-sql-history'
+
+export default function App() {
+  const [question, setQuestion] = useState('')
+  const [status, setStatus] = useState<SystemStatus | null>(null)
+  const [schema, setSchema] = useState<SchemaPayload | null>(null)
+  const [demos, setDemos] = useState<DemoQuestion[]>([])
+  const [models, setModels] = useState<ModelsResponse | null>(null)
+  const [datasources, setDatasources] = useState<DataSource[]>([])
+  const [processing, setProcessing] = useState(false)
+  const [completed, setCompleted] = useState<Set<string>>(new Set())
+  const [latencies, setLatencies] = useState<Record<string, number>>({})
+  const [failedKeys, setFailedKeys] = useState<Set<string>>(new Set())
+  const [result, setResult] = useState<PipelineResult | null>(null)
+  const [streamError, setStreamError] = useState<string | null>(null)
+  const [permissionError, setPermissionError] = useState<string | null>(null)
+  const [showExplorer, setShowExplorer] = useState(false)
+  const [showTechnical, setShowTechnical] = useState(false)
+  const [showModelSelector, setShowModelSelector] = useState(false)
+  const [showDatasourceSelector, setShowDatasourceSelector] = useState(false)
+  const [activeDatasourceId, setActiveDatasourceId] = useState<string>('enterprise')
+  const [activeModel, setActiveModel] = useState<string>('qwen3.5:9b')
+  const handleRef = useRef<StreamHandle | null>(null)
+  const modeRef = useRef<'text' | 'voice'>('text')
+  const { state: bgState, transition } = usePipelineState()
+
+  const refreshStatus = useCallback(() => {
+    fetchStatus().then(setStatus).catch(() => setStatus(null))
+    fetchSchema().then(setSchema).catch(() => undefined)
+  }, [])
+
+  const refreshDemos = useCallback(() => {
+    fetchDemoQuestions().then((data) => setDemos(data.questions)).catch(() => undefined)
+  }, [])
+
+  const refreshModels = useCallback(() => {
+    fetchModels().then(setModels).catch(() => undefined)
+  }, [])
+
+  const refreshDatasources = useCallback(() => {
+    fetchDataSources().then((res) => setDatasources(res.sources)).catch(() => undefined)
+  }, [])
+
+  useEffect(() => {
+    refreshStatus()
+    refreshDemos()
+    refreshModels()
+    refreshDatasources()
+    const timer = window.setInterval(refreshStatus, 15000)
+    return () => window.clearInterval(timer)
+  }, [refreshStatus, refreshDemos, refreshModels, refreshDatasources])
+
+  const persistHistoryLocal = useCallback((next: HistoryEntry[]) => {
+    try {
+      window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(next.slice(0, 50)))
+    } catch {
+      /* storage unavailable */
+    }
+  }, [])
+
+  const saveHistoryEntry = useCallback(
+    (entry: HistoryEntry) => {
+      setHistory((previous) => {
+        const next = [entry, ...previous.filter((item) => item.id !== entry.id)]
+        persistHistoryLocal(next)
+        return next
+      })
+    },
+    [persistHistoryLocal],
+  )
+
+  const resetRun = useCallback(() => {
+    setCompleted(new Set())
+    setLatencies({})
+    setFailedKeys(new Set())
+    setResult(null)
+    setStreamError(null)
+    setPermissionError(null)
+    transition('idle')
+  }, [transition])
+
+  const handleStreamEvent = useCallback(
+    (event: StreamEvent) => {
+      switch (event.event) {
+        case 'pipeline_started': {
+          setCompleted(new Set())
+          setLatencies({})
+          setFailedKeys(new Set())
+          transition('listening')
+          break
+        }
+        case 'stage_completed': {
+          const key = event.stage as string
+          setCompleted((previous) => {
+            const next = new Set(previous)
+            next.add(key)
+            return next
+          })
+          setLatencies((previous) => ({ ...previous, [key]: (event.latency_ms as number) ?? 0 }))
+          transition(key as any)
+          break
+        }
+        case 'pipeline_completed': {
+          const payload = event.result as PipelineResult
+          setResult(payload)
+          saveHistoryEntry(makeHistoryEntry(modeRef.current, payload))
+          transition('answer')
+          break
+        }
+        case 'pipeline_error': {
+          setStreamError(String(event.error ?? 'pipeline failed'))
+          transition('error')
+          break
+        }
+        default:
+          break
+      }
+    },
+    [saveHistoryEntry, transition],
+  )
+
+  const beginTextRun = useCallback(
+    (text: string) => {
+      if (!text.trim() || processing) return
+      resetRun()
+      modeRef.current = 'text'
+      setProcessing(true)
+      handleRef.current = runTextStream(
+        text.trim(),
+        handleStreamEvent,
+        (error) => {
+          setStreamError(error.message)
+          setProcessing(false)
+          transition('error')
+        },
+      )
+    },
+    [handleStreamEvent, processing, resetRun, transition],
+  )
+
+  const beginVoiceRun = useCallback(
+    (file: File) => {
+      if (processing) return
+      resetRun()
+      modeRef.current = 'voice'
+      setProcessing(true)
+      handleRef.current = runVoiceStream(
+        file,
+        handleStreamEvent,
+        (error) => {
+          setStreamError(error.message)
+          setProcessing(false)
+          transition('error')
+        },
+      )
+    },
+    [handleStreamEvent, processing, resetRun, transition],
+  )
+
+  useEffect(() => {
+    if (processing && (result || streamError)) {
+      setProcessing(false)
+    }
+  }, [result, streamError, processing])
+
+  useEffect(() => {
+    if (result && result.final_status === 'error') {
+      const keys = new Set<string>()
+      if (result.generation && !result.generation.generated_sql) keys.add('generation')
+      if (result.execution && result.execution.success === false) keys.add('execution')
+      if (keys.size) {
+        setFailedKeys((previous) => {
+          const next = new Set(previous)
+          keys.forEach((key) => next.add(key))
+          return next
+        })
+      }
+    }
+  }, [result])
+
+  const stageStatuses: StageStatus[] = useMemo(() => {
+    const skipped = new Set<string>()
+    if (!processing && result && !result.correction && !completed.has('correction')) {
+      skipped.add('correction')
+    }
+    return FRIENDLY_STAGES.map((key) => {
+      const meta = FRIENDLY_META.find((m) => m.key === key)
+      const isCompleted = completed.has(key)
+      const isFailed = failedKeys.has(key)
+      const isActive = processing && !isCompleted && !isFailed && !skipped.has(key)
+      let state: StageStatus = 'pending'
+      if (skipped.has(key)) state = 'skipped'
+      else if (isFailed) state = 'error'
+      else if (isCompleted) state = 'done'
+      else if (isActive) state = 'active'
+      return {
+        key,
+        label: meta?.label || key,
+        level: meta?.level || '',
+        state,
+        latency_ms: latencies[key] ?? null,
+        error: isFailed ? 'Failed' : undefined,
+      }
+    })
+  }, [completed, latencies, failedKeys, processing, result])
+
+  const onAbort = useCallback(() => {
+    handleRef.current?.abort()
+    setProcessing(false)
+    transition('idle')
+  }, [transition])
+
+  const handleDatasourceSelect = useCallback(async (source: DataSource, databaseId?: string) => {
+    try {
+      const res = await selectDataSource(source.id, databaseId)
+      if (res.ok) {
+        setSchema(res.schema)
+        setActiveDatasourceId(source.id)
+        setShowDatasourceSelector(false)
+      }
+    } catch (e) {
+      setStreamError(e instanceof Error ? e.message : 'Failed to switch datasource')
+    }
+  }, [])
+
+  const handleModelSelect = useCallback(async (modelName: string) => {
+    try {
+      const res = await selectModel(modelName)
+      if (res.ok) {
+        setActiveModel(modelName)
+        setShowModelSelector(false)
+      }
+    } catch (e) {
+      setStreamError(e instanceof Error ? e.message : 'Failed to switch model')
+    }
+  }, [])
+
+  const currentDatasource = useMemo(
+    () => datasources.find((d) => d.id === activeDatasourceId) ?? datasources[0],
+    [datasources, activeDatasourceId],
+  )
+
+  const activeSource = currentDatasource
+  const backendReady = status?.backend?.state === 'ready'
+
+  return (
+    <div className="app-shell">
+      <DataVisualizationBG state={bgState} />
+      <TopBar
+        activeSource={activeSource}
+        sources={datasources}
+        currentModel={activeModel}
+        models={models?.models ?? []}
+        onSelectSource={handleDatasourceSelect}
+        onSelectModel={handleModelSelect}
+        researchMode={false}
+        onToggleResearch={() => {}}
+        backendReady={backendReady}
+        conversationTitle={null}
+        onReconnect={() => {}}
+      />
+
+<main className="main">
+        {!backendReady && (
+          <ErrorBanner
+            title="Backend offline"
+            message="Cannot reach the Voice-LitE-SQL API. Start the FastAPI backend on port 8000."
+          />
+        )}
+        {streamError && (
+          <ErrorBanner
+            title="Pipeline error"
+            message={streamError}
+            dismissible
+            onDismiss={() => setStreamError(null)}
+          />
+        )}
+        {permissionError && (
+          <ErrorBanner
+            title="Microphone"
+            message={permissionError}
+            dismissible
+            onDismiss={() => setPermissionError(null)}
+          />
+        )}
+
+        <div className="main-area">
+          <QueryComposer
+            value={question}
+            onChange={setQuestion}
+            onSubmit={() => beginTextRun(question)}
+            onVoiceFile={beginVoiceRun}
+            disabled={processing}
+            processing={processing}
+            onAbort={onAbort}
+            onPermissionDenied={setPermissionError}
+            activeSourceName={activeSource?.name}
+          />
+        </div>
+
+        {(processing || result) && (
+          <ConversationView
+            messages={result ? [{ id: crypto.randomUUID(), role: 'assistant' as const, answer: buildAnswerViewModel({ ...result, execution: result.execution }, activeSource?.name ?? ''), timestamp: new Date().toISOString(), database: activeSource?.name ?? '', executionTime: result.execution?.execution_time_ms, result: result, sql: result.final_sql, mode: modeRef.current }] : []}
+            processing={processing}
+            mode={modeRef.current}
+            stageStatuses={stageStatuses}
+            activeQuestion={question}
+            researchMode={false}
+            suggestions={demos.map(d => d.question)}
+            onAsk={(q: string) => setQuestion(q)}
+          />
+        )}
+
+        {result && (
+          <>
+            <ProcessingTrace
+              stages={stageStatuses}
+              processing={processing}
+              mode={modeRef.current}
+              question={question}
+              result={result}
+            />
+          </>
+        )}
+      </main>
+
+      <Sidebar
+        collapsed={false}
+        onToggleCollapse={() => {}}
+        conversations={[]}
+        currentConversationId={null}
+        onSelectConversation={() => {}}
+        onNewConversation={() => {}}
+        activeSource={activeSource}
+        schema={schema}
+        onOpenDatabaseExplorer={() => setShowExplorer(true)}
+        onClearHistory={() => {}}
+      />
+    </div>
+
+    <main className="main">
+        {!backendReady && (
+          <ErrorBanner
+            title="Backend offline"
+            message="Cannot reach the Voice-LitE-SQL API. Start the FastAPI backend on port 8000."
+          />
+        )}
+        {streamError && (
+          <ErrorBanner
+            title="Pipeline error"
+            message={streamError}
+            dismissible
+            onDismiss={() => setStreamError(null)}
+          />
+        )}
+        {permissionError && (
+          <ErrorBanner
+            title="Microphone"
+            message={permissionError}
+            dismissible
+            onDismiss={() => setPermissionError(null)}
+          />
+        )}
+
+        <div className="main-area">
+          <QueryComposer
+            value={question}
+            onChange={setQuestion}
+            onSubmit={() => beginTextRun(question)}
+            onVoiceFile={beginVoiceRun}
+            disabled={processing}
+            processing={processing}
+            onAbort={onAbort}
+            onPermissionDenied={setPermissionError}
+            activeSourceName={activeSource?.name}
+          />
+        </div>
+
+        {(processing || result) && (
+          <ConversationView
+            messages={result ? [{ id: crypto.randomUUID(), role: 'assistant' as const, answer: buildAnswerViewModel({ ...result, execution: result.execution }, activeSource?.name ?? ''), timestamp: new Date().toISOString(), database: activeSource?.name ?? '', executionTime: result.execution?.execution_time_ms, result: result, sql: result.final_sql, mode: modeRef.current }] : []}
+            processing={processing}
+            mode={modeRef.current}
+            stageStatuses={stageStatuses}
+            activeQuestion={question}
+            researchMode={false}
+            suggestions={demos.map(d => d.question)}
+            onAsk={(q: string) => setQuestion(q)}
+          />
+        )}
+
+        {result && (
+          <>
+            <ProcessingTrace
+              stages={stageStatuses}
+              processing={processing}
+              mode={modeRef.current}
+              question={question}
+              result={result}
+            />
+          </>
+        )}
+      </main>
+
+      <Sidebar
+        collapsed={false}
+        onToggleCollapse={() => {}}
+        conversations={[]}
+        currentConversationId={null}
+        onSelectConversation={() => {}}
+        onNewConversation={() => {}}
+        activeSource={activeSource}
+        schema={schema}
+        onOpenDatabaseExplorer={() => setShowExplorer(true)}
+      />
+
+      {showExplorer && (
+        <DatabaseExplorerDrawer
+          open={showExplorer}
+          onClose={() => setShowExplorer(false)}
+          schema={schema}
+        />
+      )}
+
+      {showTechnical && result && (
+        <TechnicalDetails result={result} onClose={() => setShowTechnical(false)} />
+      )}
+
+      {showModelSelector && (
+        <ModelSwitcher
+          currentModel={activeModel}
+          models={models?.models ?? []}
+          onSelectModel={handleModelSelect}
+        />
+      )}
+
+      {showDatasourceSelector && (
+        <DatabaseSwitcher
+          activeSource={activeSource}
+          sources={datasources}
+          onSelectSource={handleDatasourceSelect}
+        />
+      )}
+    </div>
+  )
+}

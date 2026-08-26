@@ -1,0 +1,64 @@
+{
+  "locations": {
+    "columns": [
+      "location_id",
+      "city",
+      "region"
+    ]
+  },
+  "departments": {
+    "columns": [
+      "department_id",
+      "department_name",
+      "location_id",
+      "budget"
+    ]
+  },
+  "employees": {
+    "columns": [
+      "employee_id",
+      "employee_name",
+      "department_id",
+      "salary",
+      "hire_date"
+    ]
+  },
+  "customers": {
+    "columns": [
+      "customer_id",
+      "customer_name",
+      "city"
+    ]
+  },
+  "products": {
+    "columns": [
+      "product_id",
+      "product_name",
+      "category",
+      "price"
+    ]
+  },
+  "sales": {
+    "columns": [
+      "sale_id",
+      "employee_id",
+      "customer_id",
+      "product_id",
+      "quantity",
+      "revenue",
+      "sale_date"
+    ]
+  },
+  "orders": {
+    "columns": [
+      "order_id",
+      "customer_id",
+      "product_id",
+      "employee_id",
+      "quantity",
+      "order_total",
+      "order_date",
+      "status"
+    ]
+  }
+}

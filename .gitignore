@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# Node / React
+node_modules/
+.next/
+build/
+dist/
+.vite/
+*.tsbuildinfo
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Local Ollama model storage
+models/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# External benchmark datasets (large; kept out of version control)
+# Downloads/extractions live under backend/datasets/external/ and build
+# artifacts under datasets/external/. Neither should be committed.
+backend/datasets/external/
+datasets/external/

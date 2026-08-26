@@ -1,0 +1,128 @@
+{
+  "note": "This report contains dataset integrity facts only. No benchmark accuracy is reported.",
+  "frozen_results_untouched": {
+    "L4": "40%",
+    "L7": "36%",
+    "L8": "48%",
+    "L8.1": "54%",
+    "L9_text": "58%",
+    "L9_audio": "50% (4/8)"
+  },
+  "timestamp": "2026-08-15T10:24:00",
+  "scope": "dataset acquisition & preparation (no benchmark evaluation run)",
+  "spider": {
+    "source": "Official Spider dataset (Yale LILY), CC BY-SA 4.0",
+    "archive": {
+      "path": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\external\\spider\\spider_data.zip",
+      "entries": 2625,
+      "size_bytes": 205800266
+    },
+    "root": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\external\\spider\\spider_data",
+    "databases": {
+      "databases_discovered": 206,
+      "l2_ok": 206,
+      "l2_failed": 0,
+      "l2_failures": [],
+      "tables_inspected": 1053,
+      "columns_inspected": 5282,
+      "foreign_keys_inspected": 948
+    },
+    "questions_by_split": {
+      "train": {
+        "questions": 8659,
+        "databases_referenced": 146,
+        "reference_sql_available": 8659,
+        "reference_sql_missing": 0,
+        "evidence_available": 0,
+        "database_path_resolved": 8659,
+        "database_path_missing": 0,
+        "duplicate_question_ids": 0,
+        "duplicate_question_id_examples": []
+      },
+      "train_others": {
+        "questions": 1659,
+        "databases_referenced": 6,
+        "reference_sql_available": 1659,
+        "reference_sql_missing": 0,
+        "evidence_available": 0,
+        "database_path_resolved": 1659,
+        "database_path_missing": 0,
+        "duplicate_question_ids": 0,
+        "duplicate_question_id_examples": []
+      },
+      "dev": {
+        "questions": 1034,
+        "databases_referenced": 20,
+        "reference_sql_available": 1034,
+        "reference_sql_missing": 0,
+        "evidence_available": 0,
+        "database_path_resolved": 1034,
+        "database_path_missing": 0,
+        "duplicate_question_ids": 0,
+        "duplicate_question_id_examples": []
+      },
+      "test": {
+        "questions": 2147,
+        "databases_referenced": 40,
+        "reference_sql_available": 2147,
+        "reference_sql_missing": 0,
+        "evidence_available": 0,
+        "database_path_resolved": 2147,
+        "database_path_missing": 0,
+        "duplicate_question_ids": 0,
+        "duplicate_question_id_examples": []
+      }
+    },
+    "tables_json_dev_entries": 166,
+    "tables_json_test_entries": 206,
+    "loader": "backend.benchmarks.spider_loader.SpiderLoader"
+  },
+  "bird": {
+    "source": "BIRD Mini-Dev 0703 (official), for non-commercial research use",
+    "package": {
+      "path": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\external\\bird\\minidev_0703.zip",
+      "size_bytes": 799944582
+    },
+    "root": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\external\\bird\\minidev\\MINIDEV",
+    "databases": {
+      "databases_discovered": 11,
+      "l2_ok": 11,
+      "l2_failed": 0,
+      "l2_failures": [],
+      "tables_inspected": 75,
+      "columns_inspected": 798,
+      "foreign_keys_inspected": 105
+    },
+    "questions": {
+      "questions": 500,
+      "databases_referenced": 11,
+      "reference_sql_available": 500,
+      "reference_sql_missing": 0,
+      "evidence_available": 498,
+      "database_path_resolved": 500,
+      "database_path_missing": 0,
+      "duplicate_question_ids": 0,
+      "duplicate_question_id_examples": []
+    },
+    "tables_json_entries": 11,
+    "loader": "backend.benchmarks.bird_loader.BirdLoader"
+  },
+  "retrieval_index_preparation": {
+    "index_root": "C:\\D drive\\Voice-LitE-SQL\\datasets\\external\\indexes",
+    "mechanism": "backend.benchmarks.indexing.build_external_index",
+    "derived_from": "L2 Schema Inspector (no Enterprise schema)",
+    "sample_databases_indexed": 8,
+    "sample_dbs": [
+      "activity_1",
+      "concert_singer",
+      "department_management",
+      "singer",
+      "voter_1",
+      "student_club",
+      "superhero",
+      "toxicology"
+    ],
+    "total_documents_indexed": 240,
+    "note": "Full benchmark index build deferred to evaluation time; verification done on representative sample DBs."
+  }
+}

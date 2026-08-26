@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-08-15T14:05:45",
+  "scope": "Spider dev range [0, 5) (incremental)",
+  "offset": 0,
+  "limit": 5,
+  "questions_done_total": 5,
+  "databases": 1,
+  "elapsed_seconds": 46.9,
+  "integrity": {
+    "concert_singer": true
+  },
+  "progress_file": "C:\\D drive\\Voice-LitE-SQL\\evaluation\\results\\l10_spider_dev_progress.jsonl"
+}

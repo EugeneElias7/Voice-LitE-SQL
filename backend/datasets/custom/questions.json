@@ -1,0 +1,302 @@
+[
+  {
+    "id": "q01",
+    "category": "SELECT",
+    "question": "List all employee names.",
+    "sql": "SELECT employee_name FROM employees;"
+  },
+  {
+    "id": "q02",
+    "category": "SELECT",
+    "question": "List all department names.",
+    "sql": "SELECT department_name FROM departments;"
+  },
+  {
+    "id": "q03",
+    "category": "SELECT",
+    "question": "List all product names.",
+    "sql": "SELECT product_name FROM products;"
+  },
+  {
+    "id": "q04",
+    "category": "SELECT",
+    "question": "List all customer names.",
+    "sql": "SELECT customer_name FROM customers;"
+  },
+  {
+    "id": "q05",
+    "category": "SELECT",
+    "question": "List all cities where customers are located.",
+    "sql": "SELECT DISTINCT city FROM customers;"
+  },
+  {
+    "id": "q06",
+    "category": "SELECT",
+    "question": "Show the regions where our locations are.",
+    "sql": "SELECT DISTINCT region FROM locations;"
+  },
+  {
+    "id": "q07",
+    "category": "SELECT",
+    "question": "List all product categories.",
+    "sql": "SELECT DISTINCT category FROM products;"
+  },
+  {
+    "id": "q08",
+    "category": "SELECT",
+    "question": "Show the names of all employees with their salaries.",
+    "sql": "SELECT employee_name, salary FROM employees;"
+  },
+  {
+    "id": "q09",
+    "category": "SELECT",
+    "question": "List all order ids with their statuses.",
+    "sql": "SELECT order_id, status FROM orders;"
+  },
+  {
+    "id": "q10",
+    "category": "SELECT",
+    "question": "List all sale dates in the sales table.",
+    "sql": "SELECT DISTINCT sale_date FROM sales;"
+  },
+  {
+    "id": "q11",
+    "category": "WHERE",
+    "question": "Which employees earn more than one hundred thousand?",
+    "sql": "SELECT employee_name FROM employees WHERE salary > 100000;"
+  },
+  {
+    "id": "q12",
+    "category": "WHERE",
+    "question": "Which products cost less than fifty dollars?",
+    "sql": "SELECT product_name FROM products WHERE price < 50;"
+  },
+  {
+    "id": "q13",
+    "category": "WHERE",
+    "question": "Which customers are from New York?",
+    "sql": "SELECT customer_name FROM customers WHERE city = 'New York';"
+  },
+  {
+    "id": "q14",
+    "category": "WHERE",
+    "question": "Which sales were made on 2024-05-01?",
+    "sql": "SELECT sale_id FROM sales WHERE sale_date = '2024-05-01';"
+  },
+  {
+    "id": "q15",
+    "category": "WHERE",
+    "question": "Which orders have been cancelled?",
+    "sql": "SELECT order_id FROM orders WHERE status = 'Cancelled';"
+  },
+  {
+    "id": "q16",
+    "category": "WHERE",
+    "question": "Which employees were hired after 2020?",
+    "sql": "SELECT employee_name FROM employees WHERE hire_date > '2020-01-01';"
+  },
+  {
+    "id": "q17",
+    "category": "WHERE",
+    "question": "Which products belong to the Electronics category?",
+    "sql": "SELECT product_name FROM products WHERE category = 'Electronics';"
+  },
+  {
+    "id": "q18",
+    "category": "WHERE",
+    "question": "Which departments have a budget over two million?",
+    "sql": "SELECT department_name FROM departments WHERE budget > 2000000;"
+  },
+  {
+    "id": "q19",
+    "category": "WHERE",
+    "question": "Which locations are in the Midwest region?",
+    "sql": "SELECT city FROM locations WHERE region = 'Midwest';"
+  },
+  {
+    "id": "q20",
+    "category": "WHERE",
+    "question": "Which sales generated more than five hundred in revenue?",
+    "sql": "SELECT sale_id FROM sales WHERE revenue > 500;"
+  },
+  {
+    "id": "q21",
+    "category": "JOIN",
+    "question": "List employee names along with their department names.",
+    "sql": "SELECT e.employee_name, d.department_name FROM employees e JOIN departments d ON e.department_id = d.department_id;"
+  },
+  {
+    "id": "q22",
+    "category": "JOIN",
+    "question": "Which employees work in the Engineering department?",
+    "sql": "SELECT e.employee_name FROM employees e JOIN departments d ON e.department_id = d.department_id WHERE d.department_name = 'Engineering';"
+  },
+  {
+    "id": "q23",
+    "category": "JOIN",
+    "question": "List each department with the city where it is located.",
+    "sql": "SELECT d.department_name, l.city FROM departments d JOIN locations l ON d.location_id = l.location_id;"
+  },
+  {
+    "id": "q24",
+    "category": "JOIN",
+    "question": "Show each sale with the name of the employee who made it.",
+    "sql": "SELECT s.sale_id, e.employee_name FROM sales s JOIN employees e ON s.employee_id = e.employee_id;"
+  },
+  {
+    "id": "q25",
+    "category": "JOIN",
+    "question": "Show each sale with the product name sold.",
+    "sql": "SELECT s.sale_id, p.product_name FROM sales s JOIN products p ON s.product_id = p.product_id;"
+  },
+  {
+    "id": "q26",
+    "category": "JOIN",
+    "question": "Which customers have purchased products from the Electronics category?",
+    "sql": "SELECT DISTINCT c.customer_name FROM customers c JOIN sales s ON c.customer_id = s.customer_id JOIN products p ON s.product_id = p.product_id WHERE p.category = 'Electronics';"
+  },
+  {
+    "id": "q27",
+    "category": "JOIN",
+    "question": "Which employees made a sale on 2024-05-01?",
+    "sql": "SELECT DISTINCT e.employee_name FROM employees e JOIN sales s ON e.employee_id = s.employee_id WHERE s.sale_date = '2024-05-01';"
+  },
+  {
+    "id": "q28",
+    "category": "JOIN",
+    "question": "Show the names of the employee and customer for every sale.",
+    "sql": "SELECT s.sale_id, e.employee_name, c.customer_name FROM sales s JOIN employees e ON s.employee_id = e.employee_id JOIN customers c ON s.customer_id = c.customer_id;"
+  },
+  {
+    "id": "q29",
+    "category": "JOIN",
+    "question": "List the products sold and the department of the employee who sold them.",
+    "sql": "SELECT DISTINCT p.product_name, d.department_name FROM sales s JOIN products p ON s.product_id = p.product_id JOIN employees e ON s.employee_id = e.employee_id JOIN departments d ON e.department_id = d.department_id;"
+  },
+  {
+    "id": "q30",
+    "category": "JOIN",
+    "question": "Show order details with product names and quantities.",
+    "sql": "SELECT o.order_id, p.product_name, o.quantity FROM orders o JOIN products p ON o.product_id = p.product_id;"
+  },
+  {
+    "id": "q31",
+    "category": "GROUP BY",
+    "question": "How many employees work in each department?",
+    "sql": "SELECT d.department_name, COUNT(e.employee_id) AS employee_count FROM employees e JOIN departments d ON e.department_id = d.department_id GROUP BY d.department_name;"
+  },
+  {
+    "id": "q32",
+    "category": "GROUP BY",
+    "question": "What is the total revenue per product category?",
+    "sql": "SELECT p.category, SUM(s.revenue) AS total_revenue FROM sales s JOIN products p ON s.product_id = p.product_id GROUP BY p.category;"
+  },
+  {
+    "id": "q33",
+    "category": "GROUP BY",
+    "question": "How many customers are in each city?",
+    "sql": "SELECT city, COUNT(*) AS customer_count FROM customers GROUP BY city;"
+  },
+  {
+    "id": "q34",
+    "category": "GROUP BY",
+    "question": "How many products are there in each category?",
+    "sql": "SELECT category, COUNT(*) AS product_count FROM products GROUP BY category;"
+  },
+  {
+    "id": "q35",
+    "category": "GROUP BY",
+    "question": "What is the total revenue per employee?",
+    "sql": "SELECT s.employee_id, SUM(s.revenue) AS total_revenue FROM sales s GROUP BY s.employee_id;"
+  },
+  {
+    "id": "q36",
+    "category": "ORDER BY",
+    "question": "List employees sorted by salary from highest to lowest.",
+    "sql": "SELECT employee_name, salary FROM employees ORDER BY salary DESC;"
+  },
+  {
+    "id": "q37",
+    "category": "ORDER BY",
+    "question": "List the most expensive products first.",
+    "sql": "SELECT product_name, price FROM products ORDER BY price DESC;"
+  },
+  {
+    "id": "q38",
+    "category": "ORDER BY",
+    "question": "List customers in alphabetical order.",
+    "sql": "SELECT customer_name FROM customers ORDER BY customer_name ASC;"
+  },
+  {
+    "id": "q39",
+    "category": "ORDER BY",
+    "question": "Show the ten most recent sales.",
+    "sql": "SELECT sale_id, sale_date FROM sales ORDER BY sale_date DESC LIMIT 10;"
+  },
+  {
+    "id": "q40",
+    "category": "ORDER BY",
+    "question": "List employees hired most recently first.",
+    "sql": "SELECT employee_name, hire_date FROM employees ORDER BY hire_date DESC;"
+  },
+  {
+    "id": "q41",
+    "category": "aggregate",
+    "question": "How many employees are there?",
+    "sql": "SELECT COUNT(*) AS employee_count FROM employees;"
+  },
+  {
+    "id": "q42",
+    "category": "aggregate",
+    "question": "What is the average salary of employees?",
+    "sql": "SELECT AVG(salary) AS avg_salary FROM employees;"
+  },
+  {
+    "id": "q43",
+    "category": "aggregate",
+    "question": "What is the total revenue from all sales?",
+    "sql": "SELECT SUM(revenue) AS total_revenue FROM sales;"
+  },
+  {
+    "id": "q44",
+    "category": "aggregate",
+    "question": "What is the most expensive product?",
+    "sql": "SELECT MAX(price) AS max_price FROM products;"
+  },
+  {
+    "id": "q45",
+    "category": "aggregate",
+    "question": "What is the lowest budget among departments?",
+    "sql": "SELECT MIN(budget) AS min_budget FROM departments;"
+  },
+  {
+    "id": "q46",
+    "category": "complex",
+    "question": "Which department has the highest average salary?",
+    "sql": "SELECT d.department_name, AVG(e.salary) AS avg_salary FROM employees e JOIN departments d ON e.department_id = d.department_id GROUP BY d.department_name ORDER BY avg_salary DESC LIMIT 1;"
+  },
+  {
+    "id": "q47",
+    "category": "complex",
+    "question": "Which employees earn more than the average salary?",
+    "sql": "SELECT employee_name, salary FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);"
+  },
+  {
+    "id": "q48",
+    "category": "complex",
+    "question": "What is the total revenue per department for departments with over one hundred thousand in revenue?",
+    "sql": "SELECT d.department_name, SUM(s.revenue) AS total_revenue FROM sales s JOIN employees e ON s.employee_id = e.employee_id JOIN departments d ON e.department_id = d.department_id GROUP BY d.department_name HAVING SUM(s.revenue) > 100000;"
+  },
+  {
+    "id": "q49",
+    "category": "complex",
+    "question": "Which product has been sold the most times?",
+    "sql": "SELECT p.product_name, COUNT(*) AS sales_count FROM sales s JOIN products p ON s.product_id = p.product_id GROUP BY p.product_name ORDER BY sales_count DESC LIMIT 1;"
+  },
+  {
+    "id": "q50",
+    "category": "complex",
+    "question": "How many customers have never placed an order?",
+    "sql": "SELECT COUNT(*) AS customers_without_orders FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_id IS NULL;"
+  }
+]

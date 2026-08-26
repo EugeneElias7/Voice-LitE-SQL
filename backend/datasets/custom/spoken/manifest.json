@@ -1,0 +1,46 @@
+{
+  "description": "Spoken dataset manifest (Level 5). Audio files are recorded manually via scripts/record_audio.py -- no audio is fabricated. Each sample links a question from questions.json to a WAV file.",
+  "questions_file": "../questions.json",
+  "samples": [
+    {
+      "question_id": "q01",
+      "reference_text": "List all employee names.",
+      "audio_path": "audio/q01.wav"
+    },
+    {
+      "question_id": "q05",
+      "reference_text": "List all cities where customers are located.",
+      "audio_path": "audio/q05.wav"
+    },
+    {
+      "question_id": "q11",
+      "reference_text": "Which employees earn more than one hundred thousand?",
+      "audio_path": "audio/q11.wav"
+    },
+    {
+      "question_id": "q14",
+      "reference_text": "Which sales were made on 2024-05-01?",
+      "audio_path": "audio/q14.wav"
+    },
+    {
+      "question_id": "q21",
+      "reference_text": "List employee names along with their department names.",
+      "audio_path": "audio/q21.wav"
+    },
+    {
+      "question_id": "q26",
+      "reference_text": "Which customers have purchased products from the Electronics category?",
+      "audio_path": "audio/q26.wav"
+    },
+    {
+      "question_id": "q32",
+      "reference_text": "What is the total revenue per product category?",
+      "audio_path": "audio/q32.wav"
+    },
+    {
+      "question_id": "q41",
+      "reference_text": "How many employees are there?",
+      "audio_path": "audio/q41.wav"
+    }
+  ]
+}

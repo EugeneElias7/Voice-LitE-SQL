@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice-LitE-SQL Audio Diagnostic</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117; color: #e6edf3;
+      max-width: 900px; margin: 0 auto; padding: 24px;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #8b949e; margin-bottom: 2rem; }
+    .card {
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 8px; padding: 20px; margin-bottom: 16px;
+    }
+    .card h2 { font-size: 1rem; margin: 0 0 12px; color: #58a6ff; }
+    .status { padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; margin-bottom: 12px; }
+    .status.idle { background: #1f2428; border: 1px solid #30363d; }
+    .status.recording { background: #3d1a1a; border: 1px solid #f85149; color: #ff7b72; }
+    .status.processing { background: #1f2428; border: 1px solid #30363d; }
+    .status.done { background: #112a11; border: 1px solid #3fb950; color: #56d364; }
+    .status.error { background: #3d1a1a; border: 1px solid #f85149; color: #f85149; }
+    .btn {
+      background: #238636; color: white; border: none; padding: 10px 20px;
+      border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    }
+    .btn:hover:not(:disabled) { background: #2ea043; }
+    .btn:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
+    .btn.danger { background: #da3633; }
+    .btn.danger:hover:not(:disabled) { background: #f85149; }
+    .btn.secondary { background: #21262d; border: 1px solid #30363d; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; }
+    pre { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 6px; overflow: auto; font-size: 0.8rem; }
+    .metric { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #21262d; }
+    .metric:last-child { border-bottom: none; }
+    .metric-label { color: #8b949e; }
+    .metric-value { font-family: 'SF Mono', 'Fira Code', monospace; }
+    .transcript { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 6px; font-family: 'SF Mono', 'Fira Code', monospace; white-space: pre-wrap; }
+    .transcript.success { border-color: #3fb950; }
+    .transcript.error { border-color: #f85149; }
+    .timer { font-family: 'SF Mono', monospace; font-size: 1.5rem; color: #f85149; }
+  </style>
+</head>
+<body>
+  <h1>Audio Diagnostic</h1>
+  <p class="subtitle">Records 5 seconds using the exact same MediaRecorder logic as the Voice-LitE-SQL app, then uploads for analysis.</p>
+
+  <div class="card">
+    <h2>Microphone Test</h2>
+    <div class="status idle" id="status">Idle - click Start Recording</div>
+    <div class="row">
+      <div class="timer" id="timer">00:00</div>
+      <div style="flex:1"></div>
+      <span id="mimeInfo" style="color:#8b949e;font-size:0.85rem"></span>
+    </div>
+    <div class="row">
+      <button class="btn" id="startBtn" onclick="startRecording()">Start Recording (5s)</button>
+      <button class="btn danger" id="cancelBtn" onclick="cancelRecording()" disabled>Cancel</button>
+      <button class="btn secondary" id="downloadBtn" onclick="downloadBlob()" disabled style="display:none">Download Blob</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Upload & Analysis</h2>
+    <div class="status idle" id="uploadStatus">Waiting for recording...</div>
+    <div class="row">
+      <button class="btn" id="uploadBtn" onclick="uploadRecording()" disabled>Upload & Analyze</button>
+      <button class="btn secondary" id="clearBtn" onclick="clearResults()" style="display:none">Clear</button>
+    </div>
+  </div>
+
+  <div class="card" id="resultsCard" style="display:none">
+    <h2>Diagnostic Results</h2>
+    <div class="row">
+      <div style="flex:1">
+        <h3>Original File Analysis</h3>
+        <pre id="originalAnalysis"></pre>
+      </div>
+      <div style="flex:1">
+        <h3>Converted WAV (16kHz mono) Analysis</h3>
+        <pre id="wavAnalysis"></pre>
+      </div>
+    </div>
+    <div class="row">
+      <div style="flex:1">
+        <h3>Whisper on Original</h3>
+        <div class="transcript" id="originalTranscript"></div>
+      </div>
+      <div style="flex:1">
+        <h3>Whisper on Converted WAV</h3>
+        <div class="transcript" id="wavTranscript"></div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+const MIME_CANDIDATES = [
+  'audio/webm;codecs=opus',
+  'audio/webm',
+  'audio/mp4',
+  'audio/ogg;codecs=opus',
+];
+
+function pickMimeType() {
+  if (typeof MediaRecorder === 'undefined') return '';
+  const found = MIME_CANDIDATES.find(m => MediaRecorder.isTypeSupported(m));
+  return found || '';
+}
+
+let mediaRecorder = null;
+let stream = null;
+let chunks = [];
+let mimeType = '';
+let timerInterval = null;
+let elapsed = 0;
+let recordedBlob = null;
+
+const statusEl = document.getElementById('status');
+const uploadStatusEl = document.getElementById('uploadStatus');
+const timerEl = document.getElementById('timer');
+const mimeInfoEl = document.getElementById('mimeInfo');
+const startBtn = document.getElementById('startBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const clearBtn = document.getElementById('clearBtn');
+const resultsCard = document.getElementById('resultsCard');
+
+async function startRecording() {
+  try {
+    statusEl.textContent = 'Requesting microphone...';
+    statusEl.className = 'status processing';
+    startBtn.disabled = true;
+
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mimeType = pickMimeType();
+    mimeInfoEl.textContent = `MIME: ${mimeType || 'default'}`;
+
+    try {
+      mediaRecorder = new MediaRecorder(stream, { mimeType });
+    } catch {
+      mediaRecorder = new MediaRecorder(stream);
+    }
+
+    chunks = [];
+    mediaRecorder.ondataavailable = e => {
+      if (e.data && e.data.size > 0) chunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const type = mediaRecorder.mimeType || mimeType || 'audio/webm';
+      const ext = type.includes('mp4') ? 'mp4' : type.includes('ogg') ? 'ogg' : 'webm';
+      recordedBlob = new Blob(chunks, { type });
+      const url = URL.createObjectURL(recordedBlob);
+      downloadBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `recording-${Date.now()}.${ext}`;
+        a.click();
+      };
+      downloadBtn.style.display = 'inline-block';
+      downloadBtn.disabled = false;
+      uploadBtn.disabled = false;
+      statusEl.textContent = `Recording complete (${(recordedBlob.size/1024).toFixed(1)} KB)`;
+      statusEl.className = 'status done';
+      startBtn.disabled = false;
+      cancelBtn.disabled = true;
+      clearTimer();
+    };
+
+    mediaRecorder.start(250); // timeslice for progress
+    elapsed = 0;
+    timerEl.textContent = '00:00';
+    timerInterval = setInterval(() => {
+      elapsed += 0.25;
+      const s = Math.floor(elapsed);
+      timerEl.textContent = `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    }, 250);
+
+    // Auto-stop after 5 seconds
+    setTimeout(() => {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }, 5000);
+
+    statusEl.textContent = 'Recording... (auto-stops at 5s)';
+    statusEl.className = 'status recording';
+    cancelBtn.disabled = false;
+  } catch (err) {
+    statusEl.textContent = `Error: ${err.message}`;
+    statusEl.className = 'status error';
+    startBtn.disabled = false;
+    if (stream) stream.getTracks().forEach(t => t.stop());
+  }
+}
+
+function cancelRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.onstop = null;
+    mediaRecorder.stop();
+  }
+  clearTimer();
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  mediaRecorder = null;
+  stream = null;
+  chunks = [];
+  recordedBlob = null;
+  downloadBtn.style.display = 'none';
+  uploadBtn.disabled = true;
+  startBtn.disabled = false;
+  cancelBtn.disabled = true;
+  statusEl.textContent = 'Cancelled';
+  statusEl.className = 'status idle';
+  timerEl.textContent = '00:00';
+  mimeInfoEl.textContent = '';
+}
+
+function clearTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function downloadBlob() {
+  if (!recordedBlob) return;
+  const type = mediaRecorder?.mimeType || mimeType || 'audio/webm';
+  const ext = type.includes('mp4') ? 'mp4' : type.includes('ogg') ? 'ogg' : 'webm';
+  const url = URL.createObjectURL(recordedBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `recording-${Date.now()}.${ext}`;
+  a.click();
+}
+
+async function uploadRecording() {
+  if (!recordedBlob) return;
+  uploadBtn.disabled = true;
+  uploadStatusEl.textContent = 'Uploading...';
+  uploadStatusEl.className = 'status processing';
+
+  const formData = new FormData();
+  const ext = (mediaRecorder?.mimeType || mimeType || 'audio/webm').includes('mp4') ? 'mp4'
+    : (mediaRecorder?.mimeType || mimeType || 'audio/webm').includes('ogg') ? 'ogg' : 'webm';
+  formData.append('file', recordedBlob, `recording-${Date.now()}.${ext}`);
+
+  try {
+    const resp = await fetch('/api/audio-diag', {
+      method: 'POST',
+      body: formData,
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+    const data = await resp.json();
+    displayResults(data);
+    uploadStatusEl.textContent = 'Analysis complete';
+    uploadStatusEl.className = 'status done';
+    clearBtn.style.display = 'inline-block';
+  } catch (err) {
+    uploadStatusEl.textContent = `Upload failed: ${err.message}`;
+    uploadStatusEl.className = 'status error';
+    uploadBtn.disabled = false;
+  }
+}
+
+function displayResults(data) {
+  resultsCard.style.display = 'block';
+
+  document.getElementById('originalAnalysis').textContent = JSON.stringify(data.original_analysis, null, 2);
+  document.getElementById('wavAnalysis').textContent = JSON.stringify(data.wav_analysis, null, 2);
+
+  const origT = document.getElementById('originalTranscript');
+  origT.textContent = data.original_transcript.transcript || '(empty)';
+  origT.className = 'transcript ' + (data.original_transcript.success ? 'success' : 'error');
+  if (data.original_transcript.error) origT.textContent += `\nError: ${data.original_transcript.error}`;
+
+  const wavT = document.getElementById('wavTranscript');
+  wavT.textContent = data.wav_transcript.transcript || '(empty)';
+  wavT.className = 'transcript ' + (data.wav_transcript.success ? 'success' : 'error');
+  if (data.wav_transcript.error) wavT.textContent += `\nError: ${data.wav_transcript.error}`;
+}
+
+function clearResults() {
+  recordedBlob = null;
+  downloadBtn.style.display = 'none';
+  uploadBtn.disabled = true;
+  clearBtn.style.display = 'none';
+  resultsCard.style.display = 'none';
+  uploadStatusEl.textContent = 'Waiting for recording...';
+  uploadStatusEl.className = 'status idle';
+}
+</script>
+</body>
+</html>

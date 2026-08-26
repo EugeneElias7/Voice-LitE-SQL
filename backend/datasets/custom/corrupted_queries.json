@@ -1,0 +1,102 @@
+[
+  {
+    "original": "Show total sales revenue",
+    "corrupted": "Show total sails revenue",
+    "target": "sales"
+  },
+  {
+    "original": "Show employee salary",
+    "corrupted": "Show employee celery",
+    "target": "salary"
+  },
+  {
+    "original": "What is the total revenue?",
+    "corrupted": "What is the total avenue?",
+    "target": "revenue"
+  },
+  {
+    "original": "List all employees",
+    "corrupted": "List all employe",
+    "target": "employee"
+  },
+  {
+    "original": "Which department is largest?",
+    "corrupted": "Which departmint is largest?",
+    "target": "department"
+  },
+  {
+    "original": "How many products are in each category?",
+    "corrupted": "How many products are in each catagory?",
+    "target": "category"
+  },
+  {
+    "original": "List all customers",
+    "corrupted": "List all custumers",
+    "target": "customer"
+  },
+  {
+    "original": "What is the total quantity sold?",
+    "corrupted": "What is the total quanity sold?",
+    "target": "quantity"
+  },
+  {
+    "original": "Which location has the most sales?",
+    "corrupted": "Which locashun has the most sales?",
+    "target": "location"
+  },
+  {
+    "original": "Show sales by sale date",
+    "corrupted": "Show sales by sail date",
+    "target": "sale_date"
+  },
+  {
+    "original": "List all products",
+    "corrupted": "List all produsts",
+    "target": "products"
+  },
+  {
+    "original": "List all orders",
+    "corrupted": "List all oders",
+    "target": "orders"
+  },
+  {
+    "original": "Show the average budget per department",
+    "corrupted": "Show the average budjet per department",
+    "target": "budget"
+  },
+  {
+    "original": "What is the price of this product?",
+    "corrupted": "What is the prises of this product?",
+    "target": "price"
+  },
+  {
+    "original": "Which region has the most locations?",
+    "corrupted": "Which rejun has the most locations?",
+    "target": "region"
+  },
+  {
+    "original": "Which city has the most customers?",
+    "corrupted": "Which sity has the most customers?",
+    "target": "city"
+  },
+  {
+    "original": "What is the status of this order?",
+    "corrupted": "What is the stasus of this order?",
+    "target": "status"
+  },
+  {
+    "original": "When were employees hired?",
+    "corrupted": "When were employees higher?",
+    "target": "hire_date"
+  },
+  {
+    "original": "What was the total order value?",
+    "corrupted": "What was the total order valyu?",
+    "target": "order_total"
+  },
+  {
+    "original": "List all customer names",
+    "corrupted": "List all custumer names",
+    "target": "customer_name"
+  }
+]

@@ -1,0 +1,17 @@
+﻿fastapi
+uvicorn
+requests
+jellyfish
+rapidfuzz
+chromadb
+sentence-transformers
+openai-whisper
+SpeechRecognition
+pyaudio
+numpy
+pandas
+python-dotenv
+pytest
+sounddevice
+soundcard
+pycaw

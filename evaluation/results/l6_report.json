@@ -1,0 +1,1408 @@
+{
+  "timestamp": "2026-08-12T00:59:47",
+  "config": {
+    "threshold": 0.75,
+    "margin": 0.12,
+    "high_confidence": 0.85,
+    "min_token_len": 3,
+    "tie_epsilon": 0.04,
+    "algorithms": [
+      "jaro_winkler",
+      "levenshtein_ratio"
+    ],
+    "phonetic_algorithm": "metaphone",
+    "phonetic_min_score": 0.55,
+    "merge_multiword": true
+  },
+  "vocabulary_source": "schema_inspector",
+  "database": "C:\\D drive\\Voice-LitE-SQL\\backend\\data\\enterprise.db",
+  "corrupted_queries_file": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\custom\\corrupted_queries.json",
+  "metrics": {
+    "total_pairs": 20,
+    "strict_recovery": 17,
+    "equivalent_recovery": 19,
+    "grounded_recovery": 18,
+    "tokens_examined": 50,
+    "corrections_applied": 20,
+    "true_positives": 19,
+    "false_positives": 1,
+    "false_negatives": 1,
+    "true_negatives": 29,
+    "unchanged_token_rate": 0.6,
+    "correction_precision": 0.95,
+    "correction_recall": 0.95,
+    "correction_accuracy": 0.96,
+    "drift_texts": 3
+  },
+  "ablations": {
+    "without phonetic encoding": {
+      "total_pairs": 20,
+      "strict_recovery": 16,
+      "equivalent_recovery": 18,
+      "grounded_recovery": 17,
+      "tokens_examined": 50,
+      "corrections_applied": 19,
+      "true_positives": 18,
+      "false_positives": 1,
+      "false_negatives": 2,
+      "true_negatives": 29,
+      "unchanged_token_rate": 0.62,
+      "correction_precision": 0.9474,
+      "correction_recall": 0.9,
+      "correction_accuracy": 0.94,
+      "drift_texts": 3
+    },
+    "without multi-word merge": {
+      "total_pairs": 20,
+      "strict_recovery": 15,
+      "equivalent_recovery": 17,
+      "grounded_recovery": 16,
+      "tokens_examined": 50,
+      "corrections_applied": 20,
+      "true_positives": 17,
+      "false_positives": 3,
+      "false_negatives": 3,
+      "true_negatives": 27,
+      "unchanged_token_rate": 0.6,
+      "correction_precision": 0.85,
+      "correction_recall": 0.85,
+      "correction_accuracy": 0.88,
+      "drift_texts": 2
+    }
+  },
+  "llm_ablation": null,
+  "pairs": [
+    {
+      "original": "Show total sales revenue",
+      "corrupted": "Show total sails revenue",
+      "target": "sales",
+      "expected_corrupted_token": "sails",
+      "corrected": "Show total sales revenue",
+      "corrections": [
+        {
+          "token": "sails",
+          "corrected": "sales",
+          "kind": "table",
+          "parent": null,
+          "score": 0.8933,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8933,
+            "levenshtein_ratio": 0.8
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "show",
+          "replacement": "show",
+          "confidence": 0.5833,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.5833,
+            "levenshtein_ratio": 0.3333
+          },
+          "candidate": "customer"
+        },
+        {
+          "original": "total",
+          "replacement": "total",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "sails",
+          "replacement": "sales",
+          "confidence": 0.8933,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8933,
+            "levenshtein_ratio": 0.8
+          },
+          "candidate": "sales"
+        },
+        {
+          "original": "revenue",
+          "replacement": "revenue",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Show employee salary",
+      "corrupted": "Show employee celery",
+      "target": "salary",
+      "expected_corrupted_token": "celery",
+      "corrected": "Show employee salary",
+      "corrections": [
+        {
+          "token": "celery",
+          "corrected": "salary",
+          "kind": "column",
+          "parent": null,
+          "score": 0.6667,
+          "algorithm": "phonetic",
+          "reason": "phonetic",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "show",
+          "replacement": "show",
+          "confidence": 0.5833,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.5833,
+            "levenshtein_ratio": 0.3333
+          },
+          "candidate": "customer"
+        },
+        {
+          "original": "employee",
+          "replacement": "employee",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "celery",
+          "replacement": "salary",
+          "confidence": 0.6667,
+          "applied": true,
+          "strategy": "phonetic",
+          "reason": "phonetic",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "salary"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "What is the total revenue?",
+      "corrupted": "What is the total avenue?",
+      "target": "revenue",
+      "expected_corrupted_token": "avenue",
+      "corrected": "What is the total revenue?",
+      "corrections": [
+        {
+          "token": "avenue",
+          "corrected": "revenue",
+          "kind": "column",
+          "parent": null,
+          "score": 0.7692,
+          "algorithm": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.7159,
+            "levenshtein_ratio": 0.7692
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "total",
+          "replacement": "total",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "avenue",
+          "replacement": "revenue",
+          "confidence": 0.7692,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.7159,
+            "levenshtein_ratio": 0.7692
+          },
+          "candidate": "revenue"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "List all employees",
+      "corrupted": "List all employe",
+      "target": "employee",
+      "expected_corrupted_token": "employe",
+      "corrected": "List all employee",
+      "corrections": [
+        {
+          "token": "employe",
+          "corrected": "employee",
+          "kind": "word",
+          "parent": null,
+          "score": 0.975,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.975,
+            "levenshtein_ratio": 0.9333
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "employe",
+          "replacement": "employee",
+          "confidence": 0.975,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.975,
+            "levenshtein_ratio": 0.9333
+          },
+          "candidate": "employee"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Which department is largest?",
+      "corrupted": "Which departmint is largest?",
+      "target": "department",
+      "expected_corrupted_token": "departmint",
+      "corrected": "Which department is largest?",
+      "corrections": [
+        {
+          "token": "departmint",
+          "corrected": "department",
+          "kind": "word",
+          "parent": null,
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.9
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "departmint",
+          "replacement": "department",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.9
+          },
+          "candidate": "department"
+        },
+        {
+          "original": "largest",
+          "replacement": "largest",
+          "confidence": 0.7071,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.7071,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "sales"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "How many products are in each category?",
+      "corrupted": "How many products are in each catagory?",
+      "target": "category",
+      "expected_corrupted_token": "catagory",
+      "corrected": "How many products are in each category?",
+      "corrections": [
+        {
+          "token": "catagory",
+          "corrected": "category",
+          "kind": "column",
+          "parent": null,
+          "score": 0.9417,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9417,
+            "levenshtein_ratio": 0.875
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "products",
+          "replacement": "products",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "catagory",
+          "replacement": "category",
+          "confidence": 0.9417,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9417,
+            "levenshtein_ratio": 0.875
+          },
+          "candidate": "category"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "List all customers",
+      "corrupted": "List all custumers",
+      "target": "customer",
+      "expected_corrupted_token": "custumers",
+      "corrected": "List all customers",
+      "corrections": [
+        {
+          "token": "custumers",
+          "corrected": "customers",
+          "kind": "table",
+          "parent": null,
+          "score": 0.9556,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9556,
+            "levenshtein_ratio": 0.8889
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "custumers",
+          "replacement": "customers",
+          "confidence": 0.9556,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9556,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "customers"
+        }
+      ],
+      "strict": false,
+      "equivalent": true,
+      "grounded": false
+    },
+    {
+      "original": "What is the total quantity sold?",
+      "corrupted": "What is the total quanity sold?",
+      "target": "quantity",
+      "expected_corrupted_token": "quanity",
+      "corrected": "What is the total quantity sold?",
+      "corrections": [
+        {
+          "token": "quanity",
+          "corrected": "quantity",
+          "kind": "column",
+          "parent": null,
+          "score": 0.9464,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9464,
+            "levenshtein_ratio": 0.9333
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "total",
+          "replacement": "total",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "quanity",
+          "replacement": "quantity",
+          "confidence": 0.9464,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9464,
+            "levenshtein_ratio": 0.9333
+          },
+          "candidate": "quantity"
+        },
+        {
+          "original": "sold",
+          "replacement": "sold",
+          "confidence": 0.775,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "ambiguous",
+          "scores": {
+            "jaro_winkler": 0.775,
+            "levenshtein_ratio": 0.6
+          },
+          "candidate": "sale_id"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Which location has the most sales?",
+      "corrupted": "Which locashun has the most sales?",
+      "target": "location",
+      "expected_corrupted_token": "locashun",
+      "corrected": "Which location has the most sales?",
+      "corrections": [
+        {
+          "token": "locashun",
+          "corrected": "location",
+          "kind": "word",
+          "parent": "location_id",
+          "score": 0.85,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.85,
+            "levenshtein_ratio": 0.625
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "locashun",
+          "replacement": "location",
+          "confidence": 0.85,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.85,
+            "levenshtein_ratio": 0.625
+          },
+          "candidate": "location"
+        },
+        {
+          "original": "sales",
+          "replacement": "sales",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Show sales by sale date",
+      "corrupted": "Show sales by sail date",
+      "target": "sale_date",
+      "expected_corrupted_token": "sail",
+      "corrected": "Show sales by sale_date",
+      "corrections": [
+        {
+          "token": "sail",
+          "corrected": "sale",
+          "kind": "word",
+          "parent": null,
+          "score": 0.8667,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8667,
+            "levenshtein_ratio": 0.75
+          }
+        },
+        {
+          "token": "show sales by sale date",
+          "corrected": "Show sales by sale_date",
+          "kind": "column",
+          "parent": null,
+          "score": 0.0,
+          "algorithm": "merge",
+          "reason": "merge",
+          "scores": {}
+        }
+      ],
+      "decisions": [
+        {
+          "original": "show",
+          "replacement": "show",
+          "confidence": 0.5833,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.5833,
+            "levenshtein_ratio": 0.3333
+          },
+          "candidate": "customer"
+        },
+        {
+          "original": "sales",
+          "replacement": "sales",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "sail",
+          "replacement": "sale",
+          "confidence": 0.8667,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8667,
+            "levenshtein_ratio": 0.75
+          },
+          "candidate": "sale"
+        },
+        {
+          "original": "date",
+          "replacement": "date",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "List all products",
+      "corrupted": "List all produsts",
+      "target": "products",
+      "expected_corrupted_token": "produsts",
+      "corrected": "List all products",
+      "corrections": [
+        {
+          "token": "produsts",
+          "corrected": "products",
+          "kind": "table",
+          "parent": null,
+          "score": 0.9214,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9214,
+            "levenshtein_ratio": 0.875
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "produsts",
+          "replacement": "products",
+          "confidence": 0.9214,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9214,
+            "levenshtein_ratio": 0.875
+          },
+          "candidate": "products"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "List all orders",
+      "corrupted": "List all oders",
+      "target": "orders",
+      "expected_corrupted_token": "oders",
+      "corrected": "List all orders",
+      "corrections": [
+        {
+          "token": "oders",
+          "corrected": "orders",
+          "kind": "table",
+          "parent": null,
+          "score": 0.9091,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.89,
+            "levenshtein_ratio": 0.9091
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "oders",
+          "replacement": "orders",
+          "confidence": 0.9091,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.89,
+            "levenshtein_ratio": 0.9091
+          },
+          "candidate": "orders"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Show the average budget per department",
+      "corrupted": "Show the average budjet per department",
+      "target": "budget",
+      "expected_corrupted_token": "budjet",
+      "corrected": "Show the average budget per department",
+      "corrections": [
+        {
+          "token": "budjet",
+          "corrected": "budget",
+          "kind": "column",
+          "parent": null,
+          "score": 0.9222,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9222,
+            "levenshtein_ratio": 0.8333
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "show",
+          "replacement": "show",
+          "confidence": 0.5833,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.5833,
+            "levenshtein_ratio": 0.3333
+          },
+          "candidate": "customer"
+        },
+        {
+          "original": "average",
+          "replacement": "average",
+          "confidence": 0.6905,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6905,
+            "levenshtein_ratio": 0.5333
+          },
+          "candidate": "sale_date"
+        },
+        {
+          "original": "budjet",
+          "replacement": "budget",
+          "confidence": 0.9222,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9222,
+            "levenshtein_ratio": 0.8333
+          },
+          "candidate": "budget"
+        },
+        {
+          "original": "department",
+          "replacement": "department",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "What is the price of this product?",
+      "corrupted": "What is the prises of this product?",
+      "target": "price",
+      "expected_corrupted_token": "prises",
+      "corrected": "What is the price of this product?",
+      "corrections": [
+        {
+          "token": "prises",
+          "corrected": "price",
+          "kind": "column",
+          "parent": null,
+          "score": 0.8756,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8756,
+            "levenshtein_ratio": 0.7273
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "prises",
+          "replacement": "price",
+          "confidence": 0.8756,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8756,
+            "levenshtein_ratio": 0.7273
+          },
+          "candidate": "price"
+        },
+        {
+          "original": "product",
+          "replacement": "product",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Which region has the most locations?",
+      "corrupted": "Which rejun has the most locations?",
+      "target": "region",
+      "expected_corrupted_token": "rejun",
+      "corrected": "Which region has the most locations?",
+      "corrections": [
+        {
+          "token": "rejun",
+          "corrected": "region",
+          "kind": "column",
+          "parent": null,
+          "score": 0.76,
+          "algorithm": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.76,
+            "levenshtein_ratio": 0.5455
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "rejun",
+          "replacement": "region",
+          "confidence": 0.76,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.76,
+            "levenshtein_ratio": 0.5455
+          },
+          "candidate": "region"
+        },
+        {
+          "original": "locations",
+          "replacement": "locations",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "Which city has the most customers?",
+      "corrupted": "Which sity has the most customers?",
+      "target": "city",
+      "expected_corrupted_token": "sity",
+      "corrected": "Which city has the most customers?",
+      "corrections": [
+        {
+          "token": "sity",
+          "corrected": "city",
+          "kind": "column",
+          "parent": null,
+          "score": 0.8333,
+          "algorithm": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.8333,
+            "levenshtein_ratio": 0.75
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "sity",
+          "replacement": "city",
+          "confidence": 0.8333,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.8333,
+            "levenshtein_ratio": 0.75
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "customers",
+          "replacement": "customers",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "What is the status of this order?",
+      "corrupted": "What is the stasus of this order?",
+      "target": "status",
+      "expected_corrupted_token": "stasus",
+      "corrected": "What is the status of this order?",
+      "corrections": [
+        {
+          "token": "stasus",
+          "corrected": "status",
+          "kind": "column",
+          "parent": null,
+          "score": 0.8756,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8756,
+            "levenshtein_ratio": 0.8333
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "stasus",
+          "replacement": "status",
+          "confidence": 0.8756,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8756,
+            "levenshtein_ratio": 0.8333
+          },
+          "candidate": "status"
+        },
+        {
+          "original": "order",
+          "replacement": "order",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "When were employees hired?",
+      "corrupted": "When were employees higher?",
+      "target": "hire_date",
+      "expected_corrupted_token": "higher",
+      "corrected": "When were employees hire?",
+      "corrections": [
+        {
+          "token": "higher",
+          "corrected": "hire",
+          "kind": "word",
+          "parent": "hire_date",
+          "score": 0.8,
+          "algorithm": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.8,
+            "levenshtein_ratio": 0.6
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "employees",
+          "replacement": "employees",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "higher",
+          "replacement": "hire",
+          "confidence": 0.8,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.8,
+            "levenshtein_ratio": 0.6
+          },
+          "candidate": "hire"
+        }
+      ],
+      "strict": false,
+      "equivalent": true,
+      "grounded": true
+    },
+    {
+      "original": "What was the total order value?",
+      "corrupted": "What was the total order valyu?",
+      "target": "order_total",
+      "expected_corrupted_token": "valyu",
+      "corrected": "What was the total order valyu?",
+      "corrections": [],
+      "decisions": [
+        {
+          "original": "total",
+          "replacement": "total",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "order",
+          "replacement": "order",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "valyu",
+          "replacement": "valyu",
+          "confidence": 0.7,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.7,
+            "levenshtein_ratio": 0.5455
+          },
+          "candidate": "salary"
+        }
+      ],
+      "strict": false,
+      "equivalent": false,
+      "grounded": false
+    },
+    {
+      "original": "List all customer names",
+      "corrupted": "List all custumer names",
+      "target": "customer_name",
+      "expected_corrupted_token": "custumer",
+      "corrected": "List all customer_name",
+      "corrections": [
+        {
+          "token": "custumer",
+          "corrected": "customer",
+          "kind": "word",
+          "parent": null,
+          "score": 0.95,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.95,
+            "levenshtein_ratio": 0.875
+          }
+        },
+        {
+          "token": "names",
+          "corrected": "name",
+          "kind": "word",
+          "parent": null,
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          }
+        },
+        {
+          "token": "list all customer name",
+          "corrected": "List all customer_name",
+          "kind": "column",
+          "parent": null,
+          "score": 0.0,
+          "algorithm": "merge",
+          "reason": "merge",
+          "scores": {}
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "custumer",
+          "replacement": "customer",
+          "confidence": 0.95,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.95,
+            "levenshtein_ratio": 0.875
+          },
+          "candidate": "customer"
+        },
+        {
+          "original": "names",
+          "replacement": "name",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "name"
+        }
+      ],
+      "strict": true,
+      "equivalent": true,
+      "grounded": true
+    }
+  ],
+  "drift": [
+    {
+      "original": "Show sales by sale date",
+      "corrected": "Show sales by sale_date",
+      "corrections": [
+        {
+          "token": "show sales by sale date",
+          "corrected": "Show sales by sale_date",
+          "kind": "column",
+          "parent": null,
+          "score": 0.0,
+          "algorithm": "merge",
+          "reason": "merge",
+          "scores": {}
+        }
+      ],
+      "decisions": [
+        {
+          "original": "show",
+          "replacement": "show",
+          "confidence": 0.5833,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.5833,
+            "levenshtein_ratio": 0.3333
+          },
+          "candidate": "customer"
+        },
+        {
+          "original": "sales",
+          "replacement": "sales",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "sale",
+          "replacement": "sale",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "date",
+          "replacement": "date",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ]
+    },
+    {
+      "original": "When were employees hired?",
+      "corrected": "When were employees hire?",
+      "corrections": [
+        {
+          "token": "hired",
+          "corrected": "hire",
+          "kind": "word",
+          "parent": "hire_date",
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "employees",
+          "replacement": "employees",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "hired",
+          "replacement": "hire",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "hire"
+        }
+      ]
+    },
+    {
+      "original": "List all customer names",
+      "corrected": "List all customer_name",
+      "corrections": [
+        {
+          "token": "names",
+          "corrected": "name",
+          "kind": "word",
+          "parent": null,
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          }
+        },
+        {
+          "token": "list all customer name",
+          "corrected": "List all customer_name",
+          "kind": "column",
+          "parent": null,
+          "score": 0.0,
+          "algorithm": "merge",
+          "reason": "merge",
+          "scores": {}
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "customer",
+          "replacement": "customer",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "names",
+          "replacement": "name",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "name"
+        }
+      ]
+    }
+  ]
+}

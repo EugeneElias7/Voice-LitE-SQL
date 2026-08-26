@@ -1,0 +1,2356 @@
+{
+  "timestamp": "2026-08-14T11:35:49",
+  "model": "qwen2.5-coder:1.5b",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "top_k": 5,
+  "database": "C:\\D drive\\Voice-LitE-SQL\\backend\\data\\enterprise.db",
+  "questions_file": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\custom\\questions.json",
+  "embedder": "real",
+  "database_intact": true,
+  "components": {
+    "reranker": true,
+    "relationship_filter": true,
+    "intent_classification": true,
+    "schema_linking": true,
+    "phrase_matching": true,
+    "sql_validation": true
+  },
+  "l4_reference": "C:\\D drive\\Voice-LitE-SQL\\evaluation\\results\\l4_report.json",
+  "l7_reference": "C:\\D drive\\Voice-LitE-SQL\\evaluation\\results\\l7_report.json",
+  "l8_reference": "C:\\D drive\\Voice-LitE-SQL\\evaluation\\results\\l8_report.json",
+  "l4_metrics": {
+    "total_questions": 50,
+    "generation_success_rate": 1.0,
+    "execution_success_rate": 0.78,
+    "execution_accuracy": 0.4,
+    "sql_execution_error_rate": 0.22,
+    "average_execution_latency_ms": 4.16,
+    "median_execution_latency_ms": 2.5
+  },
+  "l7_metrics": {
+    "total_questions": 50,
+    "generation_success_rate": 1.0,
+    "execution_success_rate": 0.88,
+    "execution_accuracy": 0.36,
+    "sql_execution_error_rate": 0.12,
+    "average_execution_latency_ms": 2.84,
+    "median_execution_latency_ms": 1.34
+  },
+  "l8_metrics": {
+    "total_questions": 50,
+    "generation_success_rate": 1.0,
+    "execution_success_rate": 0.88,
+    "execution_accuracy": 0.48,
+    "sql_execution_error_rate": 0.12,
+    "average_execution_latency_ms": 5.2,
+    "median_execution_latency_ms": 2.79
+  },
+  "metrics": {
+    "total_questions": 10,
+    "generation_success_rate": 1.0,
+    "execution_success_rate": 1.0,
+    "execution_accuracy": 0.8,
+    "sql_execution_error_rate": 0.0,
+    "average_execution_latency_ms": 8.23,
+    "median_execution_latency_ms": 2.58
+  },
+  "by_category": {
+    "SELECT": {
+      "total_questions": 10,
+      "generation_success_rate": 1.0,
+      "execution_success_rate": 1.0,
+      "execution_accuracy": 0.8,
+      "sql_execution_error_rate": 0.0,
+      "average_execution_latency_ms": 8.23,
+      "median_execution_latency_ms": 2.58
+    }
+  },
+  "retrieval_latency_avg_ms": 77.469,
+  "rescued": 2,
+  "harmed": 1,
+  "held": 6,
+  "missed": 1,
+  "rescue_ids": [
+    "q03",
+    "q04"
+  ],
+  "harm_ids": [
+    "q08"
+  ],
+  "ablation_results": null,
+  "evaluations": [
+    {
+      "question_id": "q01",
+      "category": "SELECT",
+      "question": "List all employee names.",
+      "reference_sql": "SELECT employee_name FROM employees;",
+      "generation_success": true,
+      "generated_sql": "SELECT employee_name FROM employees;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all employee names.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.employee_name",
+            "table": "employees",
+            "column": "employee_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT",
+            "score": 0.6768,
+            "distance": 0.3232,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.employee_id",
+            "table": "employees",
+            "column": "employee_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.525,
+            "distance": 0.475,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.hire_date",
+            "table": "employees",
+            "column": "hire_date",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT",
+            "score": 0.4958,
+            "distance": 0.5042,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.salary",
+            "table": "employees",
+            "column": "salary",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.salary\nTABLE: employees\nTYPE: REAL",
+            "score": 0.4897,
+            "distance": 0.5103,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:employees",
+            "table": "employees",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT",
+            "score": 0.4571,
+            "distance": 0.5429,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 45.023,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT\nCOLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes\nCOLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT\nCOLUMN: employees.salary\nTABLE: employees\nTYPE: REAL\nTABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT\n\nQUESTION\nList all employee names.\n\nSQL:",
+      "intent": {
+        "primary": "SELECT",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 1.0
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "employee",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_name",
+          "match_type": "exact",
+          "matched_text": "employee_name",
+          "confidence": 0.95
+        },
+        {
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_id",
+          "match_type": "fuzzy",
+          "matched_text": "employee",
+          "confidence": 0.674
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "employee name",
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_name",
+          "match_type": "exact",
+          "score": 1.0,
+          "concept": ""
+        },
+        {
+          "phrase": "all employee name",
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_name",
+          "match_type": "token_overlap",
+          "score": 0.667,
+          "concept": ""
+        },
+        {
+          "phrase": "all employee",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "employee names",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "employee name",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "list all employee name",
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_name",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "orders",
+          "fk_source_column": "employee_id",
+          "fk_target_table": "employees",
+          "fk_target_column": "employee_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        },
+        {
+          "fk_source_table": "sales",
+          "fk_source_column": "employee_id",
+          "fk_target_table": "employees",
+          "fk_target_column": "employee_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "employees"
+        ],
+        "columns_used": [
+          "employee_name"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 2.183,
+      "correction": null
+    },
+    {
+      "question_id": "q02",
+      "category": "SELECT",
+      "question": "List all department names.",
+      "reference_sql": "SELECT department_name FROM departments;",
+      "generation_success": true,
+      "generated_sql": "SELECT department_name FROM departments;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all department names.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:departments.department_name",
+            "table": "departments",
+            "column": "department_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: departments.department_name\nTABLE: departments\nTYPE: TEXT",
+            "score": 0.6816,
+            "distance": 0.3184,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:departments.department_id",
+            "table": "departments",
+            "column": "department_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: departments.department_id\nTABLE: departments\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.5494,
+            "distance": 0.4506,
+            "source": "relationship_expansion"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:departments.budget",
+            "table": "departments",
+            "column": "budget",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: departments.budget\nTABLE: departments\nTYPE: REAL",
+            "score": 0.5073,
+            "distance": 0.4927,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.department_id",
+            "table": "employees",
+            "column": "department_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.department_id\nTABLE: employees\nTYPE: INTEGER\nFOREIGN KEY: departments.department_id",
+            "score": 0.2963,
+            "distance": 0.7037,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 41.426,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: departments.department_name\nTABLE: departments\nTYPE: TEXT\nCOLUMN: departments.department_id\nTABLE: departments\nTYPE: INTEGER\nPRIMARY KEY: yes\nCOLUMN: departments.budget\nTABLE: departments\nTYPE: REAL\nCOLUMN: employees.department_id\nTABLE: employees\nTYPE: INTEGER\nFOREIGN KEY: departments.department_id\n\nQUESTION\nList all department names.\n\nSQL:",
+      "intent": {
+        "primary": "SELECT",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 1.0
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "departments",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "department",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "departments",
+          "column": "department_name",
+          "match_type": "exact",
+          "matched_text": "department_name",
+          "confidence": 0.95
+        },
+        {
+          "entity_type": "column",
+          "table": "departments",
+          "column": "department_id",
+          "match_type": "fuzzy",
+          "matched_text": "department",
+          "confidence": 0.696
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "department name",
+          "entity_type": "column",
+          "table": "departments",
+          "column": "department_name",
+          "match_type": "exact",
+          "score": 1.0,
+          "concept": ""
+        },
+        {
+          "phrase": "all department name",
+          "entity_type": "column",
+          "table": "departments",
+          "column": "department_name",
+          "match_type": "token_overlap",
+          "score": 0.667,
+          "concept": ""
+        },
+        {
+          "phrase": "all department",
+          "entity_type": "table",
+          "table": "departments",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "department names",
+          "entity_type": "table",
+          "table": "departments",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "department name",
+          "entity_type": "table",
+          "table": "departments",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "list all department name",
+          "entity_type": "column",
+          "table": "departments",
+          "column": "department_name",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "employees",
+          "fk_source_column": "department_id",
+          "fk_target_table": "departments",
+          "fk_target_column": "department_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "departments"
+        ],
+        "columns_used": [
+          "department_name"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 0.933,
+      "correction": null
+    },
+    {
+      "question_id": "q03",
+      "category": "SELECT",
+      "question": "List all product names.",
+      "reference_sql": "SELECT product_name FROM products;",
+      "generation_success": true,
+      "generated_sql": "SELECT product_name FROM products;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all product names.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.product_name",
+            "table": "products",
+            "column": "product_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.product_name\nTABLE: products\nTYPE: TEXT",
+            "score": 0.6461,
+            "distance": 0.3539,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.product_id",
+            "table": "products",
+            "column": "product_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.product_id\nTABLE: products\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.4905,
+            "distance": 0.5095,
+            "source": "relationship_expansion"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.category",
+            "table": "products",
+            "column": "category",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.category\nTABLE: products\nTYPE: TEXT",
+            "score": 0.4586,
+            "distance": 0.5414,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:sales.product_id",
+            "table": "sales",
+            "column": "product_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: sales.product_id\nTABLE: sales\nTYPE: INTEGER\nFOREIGN KEY: products.product_id",
+            "score": 0.2648,
+            "distance": 0.7352,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 61.727,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: products.product_name\nTABLE: products\nTYPE: TEXT\nCOLUMN: products.product_id\nTABLE: products\nTYPE: INTEGER\nPRIMARY KEY: yes\nCOLUMN: products.category\nTABLE: products\nTYPE: TEXT\nCOLUMN: sales.product_id\nTABLE: sales\nTYPE: INTEGER\nFOREIGN KEY: products.product_id\n\nQUESTION\nList all product names.\n\nSQL:",
+      "intent": {
+        "primary": "SELECT",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 1.0
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "product",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "products",
+          "column": "product_name",
+          "match_type": "exact",
+          "matched_text": "product_name",
+          "confidence": 0.95
+        },
+        {
+          "entity_type": "column",
+          "table": "products",
+          "column": "product_id",
+          "match_type": "fuzzy",
+          "matched_text": "product",
+          "confidence": 0.659
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "product name",
+          "entity_type": "column",
+          "table": "products",
+          "column": "product_name",
+          "match_type": "exact",
+          "score": 1.0,
+          "concept": ""
+        },
+        {
+          "phrase": "all product name",
+          "entity_type": "column",
+          "table": "products",
+          "column": "product_name",
+          "match_type": "token_overlap",
+          "score": 0.667,
+          "concept": ""
+        },
+        {
+          "phrase": "all product",
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "product names",
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "product name",
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "list all product name",
+          "entity_type": "column",
+          "table": "products",
+          "column": "product_name",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "sales",
+          "fk_source_column": "product_id",
+          "fk_target_table": "products",
+          "fk_target_column": "product_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "products"
+        ],
+        "columns_used": [
+          "product_name"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 1.454,
+      "correction": null
+    },
+    {
+      "question_id": "q04",
+      "category": "SELECT",
+      "question": "List all customer names.",
+      "reference_sql": "SELECT customer_name FROM customers;",
+      "generation_success": true,
+      "generated_sql": "SELECT customer_name FROM customers;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all customer names.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:customers.customer_name",
+            "table": "customers",
+            "column": "customer_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: customers.customer_name\nTABLE: customers\nTYPE: TEXT",
+            "score": 0.6595,
+            "distance": 0.3405,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:customers.customer_id",
+            "table": "customers",
+            "column": "customer_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: customers.customer_id\nTABLE: customers\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.5105,
+            "distance": 0.4895,
+            "source": "relationship_expansion"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:customers",
+            "table": "customers",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: customers\nCOLUMNS:\ncustomer_id INTEGER PRIMARY KEY\ncustomer_name TEXT\ncity TEXT",
+            "score": 0.4451,
+            "distance": 0.5549,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:sales.customer_id",
+            "table": "sales",
+            "column": "customer_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: sales.customer_id\nTABLE: sales\nTYPE: INTEGER\nFOREIGN KEY: customers.customer_id",
+            "score": 0.2797,
+            "distance": 0.7203,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 69.889,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: customers.customer_name\nTABLE: customers\nTYPE: TEXT\nCOLUMN: customers.customer_id\nTABLE: customers\nTYPE: INTEGER\nPRIMARY KEY: yes\nTABLE: customers\nCOLUMNS:\ncustomer_id INTEGER PRIMARY KEY\ncustomer_name TEXT\ncity TEXT\nCOLUMN: sales.customer_id\nTABLE: sales\nTYPE: INTEGER\nFOREIGN KEY: customers.customer_id\n\nQUESTION\nList all customer names.\n\nSQL:",
+      "intent": {
+        "primary": "SELECT",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 1.0
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "customer",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "customers",
+          "column": "customer_name",
+          "match_type": "exact",
+          "matched_text": "customer_name",
+          "confidence": 0.95
+        },
+        {
+          "entity_type": "column",
+          "table": "customers",
+          "column": "customer_id",
+          "match_type": "fuzzy",
+          "matched_text": "customer",
+          "confidence": 0.674
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "customer name",
+          "entity_type": "column",
+          "table": "customers",
+          "column": "customer_name",
+          "match_type": "exact",
+          "score": 1.0,
+          "concept": ""
+        },
+        {
+          "phrase": "all customer name",
+          "entity_type": "column",
+          "table": "customers",
+          "column": "customer_name",
+          "match_type": "token_overlap",
+          "score": 0.667,
+          "concept": ""
+        },
+        {
+          "phrase": "all customer",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "customer names",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "customer name",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "list all customer name",
+          "entity_type": "column",
+          "table": "customers",
+          "column": "customer_name",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "sales",
+          "fk_source_column": "customer_id",
+          "fk_target_table": "customers",
+          "fk_target_column": "customer_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "customers"
+        ],
+        "columns_used": [
+          "customer_name"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 2.971,
+      "correction": null
+    },
+    {
+      "question_id": "q05",
+      "category": "SELECT",
+      "question": "List all cities where customers are located.",
+      "reference_sql": "SELECT DISTINCT city FROM customers;",
+      "generation_success": true,
+      "generated_sql": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all cities where customers are located.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:customers.city",
+            "table": "customers",
+            "column": "city",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: customers.city\nTABLE: customers\nTYPE: TEXT",
+            "score": 0.5253,
+            "distance": 0.4747,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:customers.customer_name",
+            "table": "customers",
+            "column": "customer_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: customers.customer_name\nTABLE: customers\nTYPE: TEXT",
+            "score": 0.4772,
+            "distance": 0.5228,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:customers",
+            "table": "customers",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: customers\nCOLUMNS:\ncustomer_id INTEGER PRIMARY KEY\ncustomer_name TEXT\ncity TEXT",
+            "score": 0.4655,
+            "distance": 0.5345,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:locations.city",
+            "table": "locations",
+            "column": "city",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: locations.city\nTABLE: locations\nTYPE: TEXT",
+            "score": 0.3831,
+            "distance": 0.6169,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:locations",
+            "table": "locations",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: locations\nCOLUMNS:\nlocation_id INTEGER PRIMARY KEY\ncity TEXT\nregion TEXT",
+            "score": 0.2206,
+            "distance": 0.7794,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 74.604,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: customers.city\nTABLE: customers\nTYPE: TEXT\nCOLUMN: customers.customer_name\nTABLE: customers\nTYPE: TEXT\nTABLE: customers\nCOLUMNS:\ncustomer_id INTEGER PRIMARY KEY\ncustomer_name TEXT\ncity TEXT\nCOLUMN: locations.city\nTABLE: locations\nTYPE: TEXT\nTABLE: locations\nCOLUMNS:\nlocation_id INTEGER PRIMARY KEY\ncity TEXT\nregion TEXT\n\nQUESTION\nList all cities where customers are located.\n\nSQL:",
+      "intent": {
+        "primary": "WHERE",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 0.5
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "exact",
+          "matched_text": "customers",
+          "confidence": 1.0
+        },
+        {
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "customer",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "customers",
+          "column": "customer_id",
+          "match_type": "fuzzy",
+          "matched_text": "customers",
+          "confidence": 0.64
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "all city",
+          "entity_type": "column",
+          "table": "locations",
+          "column": "city",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "city where",
+          "entity_type": "column",
+          "table": "locations",
+          "column": "city",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "where customers",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "where customer",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "customers are",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "customer are",
+          "entity_type": "table",
+          "table": "customers",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "customers",
+          "locations"
+        ],
+        "columns_used": [
+          "T1.city",
+          "T1.city",
+          "T2.city"
+        ],
+        "joins": [
+          {
+            "left": "locations",
+            "right": "T1.city = T2.city",
+            "kind": "INNER"
+          }
+        ],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": false,
+      "execution_error": "no progress: corrected SQL repeats a previously attempted statement",
+      "execution_error_type": "no_progress",
+      "execution_time_ms": 6.512,
+      "correction": {
+        "question_id": "q05",
+        "question": "List all cities where customers are located.",
+        "category": "SELECT",
+        "reference_sql": "SELECT DISTINCT city FROM customers;",
+        "original_sql": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city;",
+        "final_sql": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city",
+        "final_correct": false,
+        "total_attempts": 2,
+        "rescued": false,
+        "harmed": false,
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "sql": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city;",
+            "prompt": "You are a SQLite SQL correction assistant.\n\nThe previous SQL was incorrect. Fix it.\n\nRules:\n- Return ONLY the corrected SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n- Do not repeat the same mistake.\n\nRETRIEVED SCHEMA\nCOLUMN: customers.city\nTABLE: customers\nTYPE: TEXT\nCOLUMN: customers.customer_name\nTABLE: customers\nTYPE: TEXT\nTABLE: customers\nCOLUMNS:\ncustomer_id INTEGER PRIMARY KEY\ncustomer_name TEXT\ncity TEXT\nCOLUMN: locations.city\nTABLE: locations\nTYPE: TEXT\nTABLE: locations\nCOLUMNS:\nlocation_id INTEGER PRIMARY KEY\ncity TEXT\nregion TEXT\n\nORIGINAL QUESTION\nList all cities where customers are located.\n\nCURRENT SQL\nSELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city;\n\nRESULT MISMATCH\nThe SQL executed successfully but produced an incorrect result.\n\nExpected result (for evaluation only):\nColumns: city\nRow count: 30\nSample rows:\n('Memphis',)\n('Nashville',)\n('Jacksonville',)\n('Phoenix',)\n('Dallas',)\n... (25 more rows)\n\nFix the SQL logic to produce the correct result.\nSQL:",
+            "raw_response": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city",
+            "execution_success": true,
+            "execution_error": null,
+            "execution_error_type": null,
+            "execution_time_ms": 5.257,
+            "is_correct": false
+          },
+          {
+            "attempt_number": 2,
+            "sql": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city",
+            "prompt": "You are a SQLite SQL correction assistant.\n\nThe previous SQL was incorrect. Fix it.\n\nRules:\n- Return ONLY the corrected SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n- Do not repeat the same mistake.\n\nRETRIEVED SCHEMA\nCOLUMN: customers.city\nTABLE: customers\nTYPE: TEXT\nCOLUMN: customers.customer_name\nTABLE: customers\nTYPE: TEXT\nTABLE: customers\nCOLUMNS:\ncustomer_id INTEGER PRIMARY KEY\ncustomer_name TEXT\ncity TEXT\nCOLUMN: locations.city\nTABLE: locations\nTYPE: TEXT\nTABLE: locations\nCOLUMNS:\nlocation_id INTEGER PRIMARY KEY\ncity TEXT\nregion TEXT\n\nORIGINAL QUESTION\nList all cities where customers are located.\n\nCURRENT SQL\nSELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city\n\nRESULT MISMATCH\nThe SQL executed successfully but produced an incorrect result.\n\nExpected result (for evaluation only):\nColumns: city\nRow count: 30\nSample rows:\n('Memphis',)\n('Nashville',)\n('Jacksonville',)\n('Phoenix',)\n('Dallas',)\n... (25 more rows)\n\nFix the SQL logic to produce the correct result.\nSQL:",
+            "raw_response": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.city = T2.city",
+            "execution_success": true,
+            "execution_error": "no progress: corrected SQL repeats a previously attempted statement",
+            "execution_error_type": "no_progress",
+            "execution_time_ms": 6.512,
+            "is_correct": false
+          }
+        ]
+      }
+    },
+    {
+      "question_id": "q06",
+      "category": "SELECT",
+      "question": "Show the regions where our locations are.",
+      "reference_sql": "SELECT DISTINCT region FROM locations;",
+      "generation_success": true,
+      "generated_sql": "SELECT DISTINCT T1.region FROM locations AS T1 INNER JOIN departments AS T2 ON T1.location_id = T2.location_id;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "Show the regions where our locations are.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:locations.region",
+            "table": "locations",
+            "column": "region",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: locations.region\nTABLE: locations\nTYPE: TEXT",
+            "score": 0.5556,
+            "distance": 0.4444,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:locations.location_id",
+            "table": "locations",
+            "column": "location_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: locations.location_id\nTABLE: locations\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.4938,
+            "distance": 0.5062,
+            "source": "relationship_expansion"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:locations.city",
+            "table": "locations",
+            "column": "city",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: locations.city\nTABLE: locations\nTYPE: TEXT",
+            "score": 0.4679,
+            "distance": 0.5321,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:locations",
+            "table": "locations",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: locations\nCOLUMNS:\nlocation_id INTEGER PRIMARY KEY\ncity TEXT\nregion TEXT",
+            "score": 0.4414,
+            "distance": 0.5586,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:departments.location_id",
+            "table": "departments",
+            "column": "location_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: departments.location_id\nTABLE: departments\nTYPE: INTEGER\nFOREIGN KEY: locations.location_id",
+            "score": 0.2581,
+            "distance": 0.7419,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 68.177,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: locations.region\nTABLE: locations\nTYPE: TEXT\nCOLUMN: locations.location_id\nTABLE: locations\nTYPE: INTEGER\nPRIMARY KEY: yes\nCOLUMN: locations.city\nTABLE: locations\nTYPE: TEXT\nTABLE: locations\nCOLUMNS:\nlocation_id INTEGER PRIMARY KEY\ncity TEXT\nregion TEXT\nCOLUMN: departments.location_id\nTABLE: departments\nTYPE: INTEGER\nFOREIGN KEY: locations.location_id\n\nQUESTION\nShow the regions where our locations are.\n\nSQL:",
+      "intent": {
+        "primary": "WHERE",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 0.667
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "locations",
+          "column": "",
+          "match_type": "exact",
+          "matched_text": "locations",
+          "confidence": 1.0
+        },
+        {
+          "entity_type": "table",
+          "table": "locations",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "location",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "locations",
+          "column": "region",
+          "match_type": "exact",
+          "matched_text": "region",
+          "confidence": 0.95
+        },
+        {
+          "entity_type": "column",
+          "table": "locations",
+          "column": "location_id",
+          "match_type": "fuzzy",
+          "matched_text": "locations",
+          "confidence": 0.64
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "the region",
+          "entity_type": "column",
+          "table": "locations",
+          "column": "region",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "region where",
+          "entity_type": "column",
+          "table": "locations",
+          "column": "region",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "our locations",
+          "entity_type": "table",
+          "table": "locations",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "our location",
+          "entity_type": "table",
+          "table": "locations",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "locations are",
+          "entity_type": "table",
+          "table": "locations",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "location are",
+          "entity_type": "table",
+          "table": "locations",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "departments",
+          "fk_source_column": "location_id",
+          "fk_target_table": "locations",
+          "fk_target_column": "location_id",
+          "required": false,
+          "reason": "WHERE on single table: no JOIN needed",
+          "confidence": 0.75
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "locations",
+          "departments"
+        ],
+        "columns_used": [
+          "T1.region",
+          "T1.location_id",
+          "T2.location_id"
+        ],
+        "joins": [
+          {
+            "left": "departments",
+            "right": "T1.location_id = T2.location_id",
+            "kind": "INNER"
+          }
+        ],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 1.089,
+      "correction": null
+    },
+    {
+      "question_id": "q07",
+      "category": "SELECT",
+      "question": "List all product categories.",
+      "reference_sql": "SELECT DISTINCT category FROM products;",
+      "generation_success": true,
+      "generated_sql": "SELECT DISTINCT category FROM products",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all product categories.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.category",
+            "table": "products",
+            "column": "category",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.category\nTABLE: products\nTYPE: TEXT",
+            "score": 0.4991,
+            "distance": 0.5009,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.product_id",
+            "table": "products",
+            "column": "product_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.product_id\nTABLE: products\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.4732,
+            "distance": 0.5268,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.product_name",
+            "table": "products",
+            "column": "product_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.product_name\nTABLE: products\nTYPE: TEXT",
+            "score": 0.4519,
+            "distance": 0.5481,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:products",
+            "table": "products",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: products\nCOLUMNS:\nproduct_id INTEGER PRIMARY KEY\nproduct_name TEXT\ncategory TEXT\nprice REAL",
+            "score": 0.4355,
+            "distance": 0.5645,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:products.price",
+            "table": "products",
+            "column": "price",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: products.price\nTABLE: products\nTYPE: REAL",
+            "score": 0.435,
+            "distance": 0.565,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 53.253,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: products.category\nTABLE: products\nTYPE: TEXT\nCOLUMN: products.product_id\nTABLE: products\nTYPE: INTEGER\nPRIMARY KEY: yes\nCOLUMN: products.product_name\nTABLE: products\nTYPE: TEXT\nTABLE: products\nCOLUMNS:\nproduct_id INTEGER PRIMARY KEY\nproduct_name TEXT\ncategory TEXT\nprice REAL\nCOLUMN: products.price\nTABLE: products\nTYPE: REAL\n\nQUESTION\nList all product categories.\n\nSQL:",
+      "intent": {
+        "primary": "SELECT",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 1.0
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "product",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "products",
+          "column": "product_id",
+          "match_type": "fuzzy",
+          "matched_text": "product",
+          "confidence": 0.659
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "all product",
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "product categories",
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "product category",
+          "entity_type": "column",
+          "table": "products",
+          "column": "category",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "product category",
+          "entity_type": "table",
+          "table": "products",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "orders",
+          "fk_source_column": "product_id",
+          "fk_target_table": "products",
+          "fk_target_column": "product_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        },
+        {
+          "fk_source_table": "sales",
+          "fk_source_column": "product_id",
+          "fk_target_table": "products",
+          "fk_target_column": "product_id",
+          "required": false,
+          "reason": "Simple SELECT: no JOIN needed unless both tables explicitly required",
+          "confidence": 0.8
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "products"
+        ],
+        "columns_used": [
+          "category"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 1.335,
+      "correction": null
+    },
+    {
+      "question_id": "q08",
+      "category": "SELECT",
+      "question": "Show the names of all employees with their salaries.",
+      "reference_sql": "SELECT employee_name, salary FROM employees;",
+      "generation_success": true,
+      "generated_sql": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "Show the names of all employees with their salaries.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.salary",
+            "table": "employees",
+            "column": "salary",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.salary\nTABLE: employees\nTYPE: REAL",
+            "score": 0.4995,
+            "distance": 0.5005,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.employee_name",
+            "table": "employees",
+            "column": "employee_name",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT",
+            "score": 0.4807,
+            "distance": 0.5193,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.employee_id",
+            "table": "employees",
+            "column": "employee_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.4731,
+            "distance": 0.5269,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:employees",
+            "table": "employees",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT",
+            "score": 0.4598,
+            "distance": 0.5402,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.hire_date",
+            "table": "employees",
+            "column": "hire_date",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT",
+            "score": 0.4567,
+            "distance": 0.5433,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "relationship",
+            "doc_id": "relationship:sales.employee_id->employees.employee_id",
+            "table": "sales",
+            "column": "employee_id",
+            "fk_source_table": "sales",
+            "fk_source_column": "employee_id",
+            "fk_target_table": "employees",
+            "fk_target_column": "employee_id",
+            "text": "RELATIONSHIP:\nsales.employee_id\n-> employees.employee_id",
+            "score": 0.3679,
+            "distance": 0.6321,
+            "source": "relationship_expansion"
+          },
+          {
+            "doc_type": "relationship",
+            "doc_id": "relationship:orders.employee_id->employees.employee_id",
+            "table": "orders",
+            "column": "employee_id",
+            "fk_source_table": "orders",
+            "fk_source_column": "employee_id",
+            "fk_target_table": "employees",
+            "fk_target_column": "employee_id",
+            "text": "RELATIONSHIP:\norders.employee_id\n-> employees.employee_id",
+            "score": 0.291,
+            "distance": 0.709,
+            "source": "relationship_expansion"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 65.128,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: employees.salary\nTABLE: employees\nTYPE: REAL\nCOLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT\nCOLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes\nTABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT\nCOLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT\nRELATIONSHIP: sales.employee_id -> employees.employee_id\nRELATIONSHIP: orders.employee_id -> employees.employee_id\n\nQUESTION\nShow the names of all employees with their salaries.\n\nSQL:",
+      "intent": {
+        "primary": "JOIN",
+        "join_required": true,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 0.667
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "exact",
+          "matched_text": "employees",
+          "confidence": 1.0
+        },
+        {
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "employee",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "fuzzy",
+          "matched_text": "salaries",
+          "confidence": 0.769
+        },
+        {
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_id",
+          "match_type": "fuzzy",
+          "matched_text": "employees",
+          "confidence": 0.64
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "all employees",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "all employee",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "employees with",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "employee with",
+          "entity_type": "table",
+          "table": "employees",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "their salary",
+          "entity_type": "column",
+          "table": "employees",
+          "column": "salary",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "name of all employee",
+          "entity_type": "column",
+          "table": "employees",
+          "column": "employee_name",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "sales",
+          "fk_source_column": "employee_id",
+          "fk_target_table": "employees",
+          "fk_target_column": "employee_id",
+          "required": true,
+          "reason": "JOIN intent with both tables mentioned",
+          "confidence": 0.95
+        },
+        {
+          "fk_source_table": "orders",
+          "fk_source_column": "employee_id",
+          "fk_target_table": "employees",
+          "fk_target_column": "employee_id",
+          "required": true,
+          "reason": "JOIN intent: relationship needed if tables connected to question",
+          "confidence": 0.7
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "employees",
+          "sales",
+          "orders"
+        ],
+        "columns_used": [
+          "T1.employee_name",
+          "T1.salary",
+          "T1.employee_id",
+          "T2.employee_id",
+          "T1.employee_id",
+          "T3.employee_id"
+        ],
+        "joins": [
+          {
+            "left": "sales",
+            "right": "T1.employee_id = T2.employee_id",
+            "kind": "INNER"
+          },
+          {
+            "left": "orders",
+            "right": "T1.employee_id = T3.employee_id",
+            "kind": "INNER"
+          }
+        ],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": false,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 32.471,
+      "correction": {
+        "question_id": "q08",
+        "question": "Show the names of all employees with their salaries.",
+        "category": "SELECT",
+        "reference_sql": "SELECT employee_name, salary FROM employees;",
+        "original_sql": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id;",
+        "final_sql": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) OR T1.employee_id IN (SELECT employee_id FROM orders);",
+        "final_correct": false,
+        "total_attempts": 3,
+        "rescued": false,
+        "harmed": false,
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "sql": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id;",
+            "prompt": "You are a SQLite SQL correction assistant.\n\nThe previous SQL was incorrect. Fix it.\n\nRules:\n- Return ONLY the corrected SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n- Do not repeat the same mistake.\n\nRETRIEVED SCHEMA\nCOLUMN: employees.salary\nTABLE: employees\nTYPE: REAL\nCOLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT\nCOLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes\nTABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT\nCOLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT\nRELATIONSHIP: sales.employee_id -> employees.employee_id\nRELATIONSHIP: orders.employee_id -> employees.employee_id\n\nORIGINAL QUESTION\nShow the names of all employees with their salaries.\n\nCURRENT SQL\nSELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id;\n\nRESULT MISMATCH\nThe SQL executed successfully but produced an incorrect result.\n\nExpected result (for evaluation only):\nColumns: employee_name, salary\nRow count: 500\nSample rows:\n('Karen Martinez', 145079.5)\n('Michael Garcia', 46122.38)\n('Thomas Williams', 87833.86)\n('Matthew Garcia', 68715.5)\n('Betty Gonzalez', 42998.84)\n... (495 more rows)\n\nFix the SQL logic to produce the correct result.\nSQL:",
+            "raw_response": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) AND T1.employee_id IN (SELECT employee_id FROM orders);",
+            "execution_success": true,
+            "execution_error": null,
+            "execution_error_type": null,
+            "execution_time_ms": 354.629,
+            "is_correct": false
+          },
+          {
+            "attempt_number": 2,
+            "sql": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) AND T1.employee_id IN (SELECT employee_id FROM orders);",
+            "prompt": "You are a SQLite SQL correction assistant.\n\nThe previous SQL was incorrect. Fix it.\n\nRules:\n- Return ONLY the corrected SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n- Do not repeat the same mistake.\n\nRETRIEVED SCHEMA\nCOLUMN: employees.salary\nTABLE: employees\nTYPE: REAL\nCOLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT\nCOLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes\nTABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT\nCOLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT\nRELATIONSHIP: sales.employee_id -> employees.employee_id\nRELATIONSHIP: orders.employee_id -> employees.employee_id\n\nORIGINAL QUESTION\nShow the names of all employees with their salaries.\n\nCURRENT SQL\nSELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) AND T1.employee_id IN (SELECT employee_id FROM orders);\n\nRESULT MISMATCH\nThe SQL executed successfully but produced an incorrect result.\n\nExpected result (for evaluation only):\nColumns: employee_name, salary\nRow count: 500\nSample rows:\n('Karen Martinez', 145079.5)\n('Michael Garcia', 46122.38)\n('Thomas Williams', 87833.86)\n('Matthew Garcia', 68715.5)\n('Betty Gonzalez', 42998.84)\n... (495 more rows)\n\nFix the SQL logic to produce the correct result.\nSQL:",
+            "raw_response": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) OR T1.employee_id IN (SELECT employee_id FROM orders);",
+            "execution_success": true,
+            "execution_error": null,
+            "execution_error_type": null,
+            "execution_time_ms": 93.929,
+            "is_correct": false
+          },
+          {
+            "attempt_number": 3,
+            "sql": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) OR T1.employee_id IN (SELECT employee_id FROM orders);",
+            "prompt": "You are a SQLite SQL correction assistant.\n\nThe previous SQL was incorrect. Fix it.\n\nRules:\n- Return ONLY the corrected SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n- Do not repeat the same mistake.\n\nRETRIEVED SCHEMA\nCOLUMN: employees.salary\nTABLE: employees\nTYPE: REAL\nCOLUMN: employees.employee_name\nTABLE: employees\nTYPE: TEXT\nCOLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes\nTABLE: employees\nCOLUMNS:\nemployee_id INTEGER PRIMARY KEY\nemployee_name TEXT\ndepartment_id INTEGER FOREIGN KEY -> departments.department_id\nsalary REAL\nhire_date TEXT\nCOLUMN: employees.hire_date\nTABLE: employees\nTYPE: TEXT\nRELATIONSHIP: sales.employee_id -> employees.employee_id\nRELATIONSHIP: orders.employee_id -> employees.employee_id\n\nORIGINAL QUESTION\nShow the names of all employees with their salaries.\n\nCURRENT SQL\nSELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id WHERE T1.employee_id IN (SELECT employee_id FROM sales) OR T1.employee_id IN (SELECT employee_id FROM orders);\n\nRESULT MISMATCH\nThe SQL executed successfully but produced an incorrect result.\n\nExpected result (for evaluation only):\nColumns: employee_name, salary\nRow count: 500\nSample rows:\n('Karen Martinez', 145079.5)\n('Michael Garcia', 46122.38)\n('Thomas Williams', 87833.86)\n('Matthew Garcia', 68715.5)\n('Betty Gonzalez', 42998.84)\n... (495 more rows)\n\nFix the SQL logic to produce the correct result.\nSQL:",
+            "raw_response": "SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN sales AS T2 ON T1.employee_id = T2.employee_id UNION SELECT T1.employee_name, T1.salary FROM employees AS T1 INNER JOIN orders AS T3 ON T1.employee_id = T3.employee_id",
+            "execution_success": true,
+            "execution_error": null,
+            "execution_error_type": null,
+            "execution_time_ms": 32.471,
+            "is_correct": false
+          }
+        ]
+      }
+    },
+    {
+      "question_id": "q09",
+      "category": "SELECT",
+      "question": "List all order ids with their statuses.",
+      "reference_sql": "SELECT order_id, status FROM orders;",
+      "generation_success": true,
+      "generated_sql": "SELECT orders.order_id, orders.status FROM orders;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all order ids with their statuses.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:orders.order_id",
+            "table": "orders",
+            "column": "order_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: orders.order_id\nTABLE: orders\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.6418,
+            "distance": 0.3582,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:orders.status",
+            "table": "orders",
+            "column": "status",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: orders.status\nTABLE: orders\nTYPE: TEXT",
+            "score": 0.5645,
+            "distance": 0.4355,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:orders.employee_id",
+            "table": "orders",
+            "column": "employee_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: orders.employee_id\nTABLE: orders\nTYPE: INTEGER\nFOREIGN KEY: employees.employee_id",
+            "score": 0.466,
+            "distance": 0.534,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:orders",
+            "table": "orders",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: orders\nCOLUMNS:\norder_id INTEGER PRIMARY KEY\ncustomer_id INTEGER FOREIGN KEY -> customers.customer_id\nproduct_id INTEGER FOREIGN KEY -> products.product_id\nemployee_id INTEGER FOREIGN KEY -> employees.employee_id\nquantity INTEGER\norder_total REAL\norder_date TEXT\nstatus TEXT",
+            "score": 0.413,
+            "distance": 0.587,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:employees.employee_id",
+            "table": "employees",
+            "column": "employee_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.2836,
+            "distance": 0.7164,
+            "source": "relationship_expansion"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 161.642,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: orders.order_id\nTABLE: orders\nTYPE: INTEGER\nPRIMARY KEY: yes\nCOLUMN: orders.status\nTABLE: orders\nTYPE: TEXT\nCOLUMN: orders.employee_id\nTABLE: orders\nTYPE: INTEGER\nFOREIGN KEY: employees.employee_id\nTABLE: orders\nCOLUMNS:\norder_id INTEGER PRIMARY KEY\ncustomer_id INTEGER FOREIGN KEY -> customers.customer_id\nproduct_id INTEGER FOREIGN KEY -> products.product_id\nemployee_id INTEGER FOREIGN KEY -> employees.employee_id\nquantity INTEGER\norder_total REAL\norder_date TEXT\nstatus TEXT\nCOLUMN: employees.employee_id\nTABLE: employees\nTYPE: INTEGER\nPRIMARY KEY: yes\n\nQUESTION\nList all order ids with their statuses.\n\nSQL:",
+      "intent": {
+        "primary": "ORDER_BY",
+        "join_required": true,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": true,
+        "subquery_likely": false,
+        "confidence": 0.5
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "orders",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "order",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "exact",
+          "matched_text": "order_id",
+          "confidence": 0.95
+        },
+        {
+          "entity_type": "column",
+          "table": "orders",
+          "column": "status",
+          "match_type": "exact",
+          "matched_text": "status",
+          "confidence": 0.95
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "order id",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "exact",
+          "score": 1.0,
+          "concept": ""
+        },
+        {
+          "phrase": "all order id",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "token_overlap",
+          "score": 0.667,
+          "concept": ""
+        },
+        {
+          "phrase": "order id with",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "token_overlap",
+          "score": 0.667,
+          "concept": ""
+        },
+        {
+          "phrase": "all order",
+          "entity_type": "table",
+          "table": "orders",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "order ids",
+          "entity_type": "table",
+          "table": "orders",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "order id",
+          "entity_type": "table",
+          "table": "orders",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "their status",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "status",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "list all order id",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "all order id with",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "order id with their",
+          "entity_type": "column",
+          "table": "orders",
+          "column": "order_id",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [
+        {
+          "fk_source_table": "orders",
+          "fk_source_column": "employee_id",
+          "fk_target_table": "employees",
+          "fk_target_column": "employee_id",
+          "required": false,
+          "reason": "ORDER BY on single table",
+          "confidence": 0.7
+        }
+      ],
+      "validation": {
+        "is_valid": true,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "MISSING_ORDER_BY",
+            "message": "Query intent suggests ORDER BY but none found",
+            "location": "SELECT"
+          }
+        ],
+        "tables_used": [
+          "orders"
+        ],
+        "columns_used": [
+          "orders.order_id",
+          "orders.status"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 14.629,
+      "correction": null
+    },
+    {
+      "question_id": "q10",
+      "category": "SELECT",
+      "question": "List all sale dates in the sales table.",
+      "reference_sql": "SELECT DISTINCT sale_date FROM sales;",
+      "generation_success": true,
+      "generated_sql": "SELECT DISTINCT sale_date FROM sales;",
+      "generation_error": null,
+      "retrieval": {
+        "question": "List all sale dates in the sales table.",
+        "top_k": 5,
+        "items": [
+          {
+            "doc_type": "column",
+            "doc_id": "column:sales.sale_date",
+            "table": "sales",
+            "column": "sale_date",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: sales.sale_date\nTABLE: sales\nTYPE: TEXT",
+            "score": 0.6213,
+            "distance": 0.3787,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:sales.revenue",
+            "table": "sales",
+            "column": "revenue",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: sales.revenue\nTABLE: sales\nTYPE: REAL",
+            "score": 0.5247,
+            "distance": 0.4753,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:sales.sale_id",
+            "table": "sales",
+            "column": "sale_id",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: sales.sale_id\nTABLE: sales\nTYPE: INTEGER\nPRIMARY KEY: yes",
+            "score": 0.5066,
+            "distance": 0.4934,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "table",
+            "doc_id": "table:sales",
+            "table": "sales",
+            "column": "",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "TABLE: sales\nCOLUMNS:\nsale_id INTEGER PRIMARY KEY\nemployee_id INTEGER FOREIGN KEY -> employees.employee_id\ncustomer_id INTEGER FOREIGN KEY -> customers.customer_id\nproduct_id INTEGER FOREIGN KEY -> products.product_id\nquantity INTEGER\nrevenue REAL\nsale_date TEXT",
+            "score": 0.4691,
+            "distance": 0.5309,
+            "source": "retrieval"
+          },
+          {
+            "doc_type": "column",
+            "doc_id": "column:orders.order_date",
+            "table": "orders",
+            "column": "order_date",
+            "fk_source_table": "",
+            "fk_source_column": "",
+            "fk_target_table": "",
+            "fk_target_column": "",
+            "text": "COLUMN: orders.order_date\nTABLE: orders\nTYPE: TEXT",
+            "score": 0.2744,
+            "distance": 0.7256,
+            "source": "retrieval"
+          }
+        ],
+        "schema_context": ""
+      },
+      "retrieval_latency_ms": 133.818,
+      "prompt": "You are a SQLite SQL generation assistant.\n\nGenerate a single SQLite query that answers the user's question.\n\nRules:\n- Return ONLY the SQL statement, with no explanation.\n- Use only the provided schema. Do not invent tables or columns.\n- Use SELECT (or WITH) only. The following operations are strictly forbidden: INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, ATTACH, DETACH, PRAGMA, REPLACE, TRUNCATE, VACUUM, GRANT, REVOKE.\n- Use JOIN only when the schema relationships below require it.\n- You may only reference the foreign key relationships listed below.\n\nRETRIEVED SCHEMA\nCOLUMN: sales.sale_date\nTABLE: sales\nTYPE: TEXT\nCOLUMN: sales.revenue\nTABLE: sales\nTYPE: REAL\nCOLUMN: sales.sale_id\nTABLE: sales\nTYPE: INTEGER\nPRIMARY KEY: yes\nTABLE: sales\nCOLUMNS:\nsale_id INTEGER PRIMARY KEY\nemployee_id INTEGER FOREIGN KEY -> employees.employee_id\ncustomer_id INTEGER FOREIGN KEY -> customers.customer_id\nproduct_id INTEGER FOREIGN KEY -> products.product_id\nquantity INTEGER\nrevenue REAL\nsale_date TEXT\nCOLUMN: orders.order_date\nTABLE: orders\nTYPE: TEXT\n\nQUESTION\nList all sale dates in the sales table.\n\nSQL:",
+      "intent": {
+        "primary": "WHERE",
+        "join_required": false,
+        "aggregation_required": false,
+        "grouping_required": false,
+        "ordering_required": false,
+        "subquery_likely": false,
+        "confidence": 0.667
+      },
+      "linked_entities": [
+        {
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "exact",
+          "matched_text": "sales",
+          "confidence": 1.0
+        },
+        {
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "normalized",
+          "matched_text": "sale",
+          "confidence": 0.9
+        },
+        {
+          "entity_type": "column",
+          "table": "sales",
+          "column": "sale_date",
+          "match_type": "exact",
+          "matched_text": "sale_date",
+          "confidence": 0.95
+        }
+      ],
+      "phrase_matches": [
+        {
+          "phrase": "all sale",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "sale dates",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "sale dat",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "the sales",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "the sale",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "sales table",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        },
+        {
+          "phrase": "sale table",
+          "entity_type": "table",
+          "table": "sales",
+          "column": "",
+          "match_type": "token_overlap",
+          "score": 0.5,
+          "concept": ""
+        }
+      ],
+      "relationship_assessments": [],
+      "validation": {
+        "is_valid": true,
+        "issues": [],
+        "tables_used": [
+          "sales"
+        ],
+        "columns_used": [
+          "sale_date"
+        ],
+        "joins": [],
+        "has_aggregation": false,
+        "has_group_by": false,
+        "has_order_by": false,
+        "has_subquery": false
+      },
+      "validation_passed": true,
+      "execution_success": true,
+      "correctness": true,
+      "execution_error": null,
+      "execution_error_type": null,
+      "execution_time_ms": 18.747,
+      "correction": null
+    }
+  ]
+}

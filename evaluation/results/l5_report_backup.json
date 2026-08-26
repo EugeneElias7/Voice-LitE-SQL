@@ -1,0 +1,547 @@
+{
+  "timestamp": "2026-08-12T21:19:13",
+  "asr_model": "small",
+  "llm_model": "qwen2.5-coder:1.5b",
+  "phonetic_normalization": true,
+  "manifest": "C:\\D drive\\Voice-LitE-SQL\\backend\\datasets\\custom\\spoken\\manifest.json",
+  "rows": [
+    {
+      "question_id": "q01",
+      "reference_text": "List all employee names.",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "Play names",
+      "normalized_transcript": "Play name",
+      "corrections": [
+        {
+          "token": "names",
+          "corrected": "name",
+          "kind": "word",
+          "parent": null,
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "play",
+          "replacement": "play",
+          "confidence": 0.7083,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.7083,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "employee"
+        },
+        {
+          "original": "names",
+          "replacement": "name",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "name"
+        }
+      ],
+      "wer": 1.0,
+      "transcription_time_ms": 8302.956,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": false,
+      "generated_sql": "SELECT T1.employee_name FROM employees AS T1 INNER JOIN orders AS T2 ON T1.employee_id = T2.employee_id WHERE T2.status = 'completed';",
+      "error": null
+    },
+    {
+      "question_id": "q05",
+      "reference_text": "List all cities where customers are located.",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "List all cities where customers are located.",
+      "normalized_transcript": "List all city where customers are location.",
+      "corrections": [
+        {
+          "token": "cities",
+          "corrected": "city",
+          "kind": "column",
+          "parent": null,
+          "score": 0.825,
+          "algorithm": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.825,
+            "levenshtein_ratio": 0.6
+          }
+        },
+        {
+          "token": "located",
+          "corrected": "location",
+          "kind": "word",
+          "parent": "location_id",
+          "score": 0.8679,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8679,
+            "levenshtein_ratio": 0.6667
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "list",
+          "replacement": "list",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "cities",
+          "replacement": "city",
+          "confidence": 0.825,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "margin",
+          "scores": {
+            "jaro_winkler": 0.825,
+            "levenshtein_ratio": 0.6
+          },
+          "candidate": "city"
+        },
+        {
+          "original": "customers",
+          "replacement": "customers",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "located",
+          "replacement": "location",
+          "confidence": 0.8679,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.8679,
+            "levenshtein_ratio": 0.6667
+          },
+          "candidate": "location"
+        }
+      ],
+      "wer": 0.0,
+      "transcription_time_ms": 10187.42,
+      "generation_success": true,
+      "execution_success": false,
+      "correctness": false,
+      "generated_sql": "SELECT T1.city FROM customers AS T1 INNER JOIN locations AS T2 ON T1.location_id = T2.location_id;",
+      "error": "(missing_column) no such column: T1.location_id"
+    },
+    {
+      "question_id": "q11",
+      "reference_text": "Which employees earn more than one hundred thousand?",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "which employs earn more than 100,000.",
+      "normalized_transcript": "which employees earn more than 100,000.",
+      "corrections": [
+        {
+          "token": "employs",
+          "corrected": "employees",
+          "kind": "table",
+          "parent": null,
+          "score": 0.9556,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9556,
+            "levenshtein_ratio": 0.875
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "original": "employs",
+          "replacement": "employees",
+          "confidence": 0.9556,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.9556,
+            "levenshtein_ratio": 0.875
+          },
+          "candidate": "employees"
+        },
+        {
+          "original": "earn",
+          "replacement": "earn",
+          "confidence": 0.7778,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "ambiguous",
+          "scores": {
+            "jaro_winkler": 0.7778,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "department_id"
+        },
+        {
+          "original": "more",
+          "replacement": "more",
+          "confidence": 0.7833,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "ambiguous",
+          "scores": {
+            "jaro_winkler": 0.7833,
+            "levenshtein_ratio": 0.6667
+          },
+          "candidate": "order"
+        }
+      ],
+      "wer": 0.5,
+      "transcription_time_ms": 9871.628,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": true,
+      "generated_sql": "SELECT e.employee_name FROM employees e WHERE e.salary > 100000;",
+      "error": null
+    },
+    {
+      "question_id": "q14",
+      "reference_text": "Which sales were made on 2024-05-01?",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "which sales were made on 2024 0501",
+      "normalized_transcript": "which sales were made on 2024 0501",
+      "corrections": [],
+      "decisions": [
+        {
+          "original": "sales",
+          "replacement": "sales",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "made",
+          "replacement": "made",
+          "confidence": 0.6667,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6667,
+            "levenshtein_ratio": 0.5
+          },
+          "candidate": "sale"
+        }
+      ],
+      "wer": 0.3333,
+      "transcription_time_ms": 9992.421,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": false,
+      "generated_sql": "SELECT s.sale_id, s.employee_id, s.customer_id, p.product_name, s.quantity, s.revenue, s.sale_date\nFROM sales s\nJOIN products p ON s.product_id = p.product_id\nWHERE s.sale_date LIKE '2024-05-01';",
+      "error": null
+    },
+    {
+      "question_id": "q21",
+      "reference_text": "List employee names along with their department names.",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "Employee names along with their department names.",
+      "normalized_transcript": "employee_name along with their department_name",
+      "corrections": [
+        {
+          "token": "names",
+          "corrected": "name",
+          "kind": "word",
+          "parent": null,
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          }
+        },
+        {
+          "token": "names",
+          "corrected": "name",
+          "kind": "word",
+          "parent": null,
+          "score": 0.96,
+          "algorithm": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          }
+        },
+        {
+          "token": "employee name along with their department name",
+          "corrected": "employee_name along with their department_name",
+          "kind": "column",
+          "parent": null,
+          "score": 0.0,
+          "algorithm": "merge",
+          "reason": "merge",
+          "scores": {}
+        }
+      ],
+      "decisions": [
+        {
+          "original": "employee",
+          "replacement": "employee",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "names",
+          "replacement": "name",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "name"
+        },
+        {
+          "original": "along",
+          "replacement": "along",
+          "confidence": 0.6333,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "below_threshold",
+          "scores": {
+            "jaro_winkler": 0.6333,
+            "levenshtein_ratio": 0.4444
+          },
+          "candidate": "sale"
+        },
+        {
+          "original": "department",
+          "replacement": "department",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "names",
+          "replacement": "name",
+          "confidence": 0.96,
+          "applied": true,
+          "strategy": "similarity",
+          "reason": "high_confidence",
+          "scores": {
+            "jaro_winkler": 0.96,
+            "levenshtein_ratio": 0.8889
+          },
+          "candidate": "name"
+        }
+      ],
+      "wer": 0.125,
+      "transcription_time_ms": 9940.256,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": true,
+      "generated_sql": "SELECT e.employee_name, d.department_name FROM employees e JOIN departments d ON e.department_id = d.department_id;",
+      "error": null
+    },
+    {
+      "question_id": "q26",
+      "reference_text": "Which customers have purchased products from the Electronics category?",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "which customers have purchased products from their electronics category.",
+      "normalized_transcript": "which customers have purchased products from their electronics category.",
+      "corrections": [],
+      "decisions": [
+        {
+          "original": "customers",
+          "replacement": "customers",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "purchased",
+          "replacement": "purchased",
+          "confidence": 0.7733,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "ambiguous",
+          "scores": {
+            "jaro_winkler": 0.7733,
+            "levenshtein_ratio": 0.5714
+          },
+          "candidate": "price"
+        },
+        {
+          "original": "products",
+          "replacement": "products",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "electronics",
+          "replacement": "electronics",
+          "confidence": 0.7571,
+          "applied": false,
+          "strategy": "similarity",
+          "reason": "ambiguous",
+          "scores": {
+            "jaro_winkler": 0.7571,
+            "levenshtein_ratio": 0.6
+          },
+          "candidate": "locations"
+        },
+        {
+          "original": "category",
+          "replacement": "category",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "wer": 0.2222,
+      "transcription_time_ms": 9959.224,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": false,
+      "generated_sql": "SELECT DISTINCT c.customer_name FROM customers c \nJOIN orders o ON c.customer_id = o.customer_id \nJOIN products p ON o.product_id = p.product_id \nWHERE p.category = 'Electronics';",
+      "error": null
+    },
+    {
+      "question_id": "q32",
+      "reference_text": "What is the total revenue per product category?",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "what is the total revenue per product category",
+      "normalized_transcript": "what is the total revenue per product category",
+      "corrections": [],
+      "decisions": [
+        {
+          "original": "total",
+          "replacement": "total",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "revenue",
+          "replacement": "revenue",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "product",
+          "replacement": "product",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        },
+        {
+          "original": "category",
+          "replacement": "category",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "wer": 0.125,
+      "transcription_time_ms": 10146.462,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": true,
+      "generated_sql": "SELECT p.category, SUM(s.revenue) as total_revenue\nFROM sales s\nJOIN products p ON s.product_id = p.product_id\nGROUP BY p.category;",
+      "error": null
+    },
+    {
+      "question_id": "q41",
+      "reference_text": "How many employees are there?",
+      "audio_exists": true,
+      "transcription_success": true,
+      "transcript": "How many employees are there?",
+      "normalized_transcript": "How many employees are there?",
+      "corrections": [],
+      "decisions": [
+        {
+          "original": "employees",
+          "replacement": "employees",
+          "confidence": 1.0,
+          "applied": false,
+          "strategy": "none",
+          "reason": "exact_match",
+          "scores": {},
+          "candidate": null
+        }
+      ],
+      "wer": 0.0,
+      "transcription_time_ms": 9808.43,
+      "generation_success": true,
+      "execution_success": true,
+      "correctness": false,
+      "generated_sql": "SELECT COUNT(*) FROM employees;",
+      "error": null
+    }
+  ]
+}

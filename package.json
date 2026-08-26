@@ -1,0 +1,13 @@
+{
+  "name": "voice-lite-sql",
+  "private": true,
+  "version": "11.0.0",
+  "description": "Voice-LitE-SQL: Local Voice -> NLP -> SQL Assistant",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "python -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8000",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "test:backend": "python -m pytest backend/tests -q",
+    "test:frontend": "npm --prefix frontend run test"
+  }
+}
