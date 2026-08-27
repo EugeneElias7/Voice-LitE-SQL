@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { ArrowUp, Database, Mic, Plus, Square, X } from 'lucide-react'
 import { useRecorder } from '../useRecorder'
 
@@ -32,24 +32,20 @@ export function QueryComposer({
   const recorder = useRecorder(onPermissionDenied)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
-  const [voiceActive, setVoiceActive] = useState(false)
-  const [transcribing, setTranscribing] = useState(false)
-  const [voiceState, setVoiceState] = useState<'idle' | 'recording' | 'transcribing' | 'ready' | 'error'>('idle')
 
   useEffect(() => {
     if (recorder.error) {
-      setVoiceActive(false)
-      setTranscribing(false)
+      // Error is handled by voiceState
     }
   }, [recorder.error])
 
   // Sync real-time transcript to composer value
   useEffect(() => {
-    if (voiceActive && (recorder.transcript || recorder.interimTranscript)) {
+    if (recorder.voiceState === 'recording' && (recorder.transcript || recorder.interimTranscript)) {
       const fullTranscript = recorder.transcript + (recorder.transcript && recorder.interimTranscript ? ' ' : '') + recorder.interimTranscript
       onChange(fullTranscript)
     }
-  }, [recorder.transcript, recorder.interimTranscript, voiceActive, onChange])
+  }, [recorder.transcript, recorder.interimTranscript, recorder.voiceState, onChange])
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -74,38 +70,27 @@ export function QueryComposer({
 
   const startVoice = useCallback(async () => {
     if (processing || disabled) return
-    setVoiceActive(true)
-    setTranscribing(false)
-    setVoiceState('recording')
     await recorder.start()
   }, [recorder, processing, disabled])
 
   const cancelVoice = useCallback(() => {
     recorder.cancel()
-    setVoiceActive(false)
-    setTranscribing(false)
-    setVoiceState('idle')
   }, [recorder])
 
   const stopVoice = useCallback(async () => {
-    if (transcribing) return
-    setTranscribing(true)
-    setVoiceState('transcribing')
+    if (recorder.voiceState === 'transcribing') return
     const file = await recorder.stop()
     if (file) {
       onVoiceFile(file)
     }
-    setVoiceActive(false)
-    setTranscribing(false)
-    setVoiceState('ready')
     requestAnimationFrame(() => textareaRef.current?.focus())
-  }, [recorder, transcribing, onVoiceFile])
+  }, [recorder, onVoiceFile])
 
   // While voice recording, Enter just stops the recording. The transcript
   // stays in the composer, and the user presses Enter again (or clicks Send)
   // in the normal input to submit.
   useEffect(() => {
-    if (!voiceActive) return
+    if (recorder.voiceState !== 'recording') return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         const target = event.target as HTMLElement | null
@@ -116,31 +101,35 @@ export function QueryComposer({
         if (isEditable) return
         event.preventDefault()
         event.stopPropagation()
-        void stopVoice()
+        void recorder.stop()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [voiceActive, stopVoice])
+  }, [recorder.voiceState, recorder.stop])
 
   const canSend = value.trim().length > 0 && !disabled
 
   return (
     <div className="query-composer">
       <div className="composer-frame" ref={frameRef}>
-        {voiceActive ? (
-          <div className={`composer-voice voice-state-${voiceState}`}>
+        {recorder.voiceState === 'recording' || recorder.voiceState === 'transcribing' || recorder.voiceState === 'stopping' || recorder.voiceState === 'requesting_permission' ? (
+          <div className={`composer-voice voice-state-${recorder.voiceState}`}>
             <div className="voice-status">
               <span className="rec-dot" />
-              {voiceState === 'recording'
+              {recorder.voiceState === 'requesting_permission'
+                ? 'Starting microphone…'
+                : recorder.voiceState === 'recording'
                 ? `Listening… ${String(recorder.elapsed).padStart(2, '0')}`
-                : voiceState === 'transcribing'
+                : recorder.voiceState === 'stopping'
+                ? 'Stopping…'
+                : recorder.voiceState === 'transcribing'
                 ? 'Transcribing…'
-                : voiceState === 'ready'
+                : recorder.voiceState === 'ready'
                 ? 'Transcript ready — press Send'
-                : voiceState === 'error'
+                : recorder.voiceState === 'error'
                 ? 'Error — try again'
-                : `Listening… ${String(recorder.elapsed).padStart(2, '0')}`}
+                : 'Listening…'}
             </div>
             {recorder.devices.length > 1 && (
               <div className="voice-device-selector">
@@ -168,18 +157,36 @@ export function QueryComposer({
               ))}
             </div>
             <div className="voice-actions">
-              <button className="voice-btn danger" onClick={cancelVoice}>
+              <button className="voice-btn danger" onClick={cancelVoice} disabled={recorder.voiceState === 'transcribing'}>
                 <X size={15} strokeWidth={1.75} />
                 Cancel
               </button>
-              <button className="voice-btn primary" onClick={stopVoice} disabled={voiceState !== 'recording'}>
+              <button className="voice-btn primary" onClick={stopVoice} disabled={recorder.voiceState !== 'recording'}>
                 <Mic size={15} strokeWidth={1.75} />
-                {voiceState === 'recording' ? 'Stop & Send' : voiceState === 'transcribing' ? 'Transcribing…' : 'Stop & Send'}
+                {recorder.voiceState === 'recording' ? 'Stop & Send' : recorder.voiceState === 'transcribing' ? 'Transcribing…' : 'Stop & Send'}
               </button>
             </div>
           </div>
         ) : (
           <>
+            {recorder.voiceState === 'error' && permissionError && (
+              <div className="mic-error-banner" role="alert">
+                <svg className="error-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                <span className="error-text">{permissionError}</span>
+                {onPermissionDismiss && (
+                  <button type="button" className="error-dismiss" onClick={onPermissionDismiss} aria-label="Dismiss">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
             <div className="composer-input-row">
               <button
                 type="button"
@@ -204,11 +211,11 @@ export function QueryComposer({
               />
               <button
                 type="button"
-                className={`composer-icon-btn voice ${voiceActive ? 'active' : ''}`}
+                className={`composer-icon-btn voice ${recorder.voiceState !== 'idle' ? 'active' : ''}`}
                 onClick={startVoice}
                 disabled={processing}
                 aria-label="Voice input"
-                title={voiceActive ? 'Recording… Click to stop' : 'Voice input'}
+                title={recorder.voiceState !== 'idle' ? 'Recording… Click to stop' : 'Voice input'}
               >
                 <Mic size={18} strokeWidth={1.75} />
               </button>
@@ -249,7 +256,7 @@ export function QueryComposer({
           </>
         )}
       </div>
-      {permissionError && (
+      {permissionError && recorder.voiceState !== 'error' && (
         <div className="mic-error-banner" role="alert">
           <svg className="error-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />

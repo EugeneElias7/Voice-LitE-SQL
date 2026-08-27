@@ -9,16 +9,15 @@ import { ConversationView } from './components/ConversationView'
 import { QueryComposer } from './components/QueryComposer'
 import { DatabaseExplorerDrawer } from './components/DatabaseExplorerDrawer'
 import { ErrorBanner } from './components/ErrorBanner'
-import { ProcessingTrace } from './components/ProcessingTrace'
 import { TechnicalDetails } from './components/TechnicalDetails'
 import { ModelSwitcher } from './components/ModelSwitcher'
 import { DatabaseSwitcher } from './components/DatabaseSwitcher'
-import { FRIENDLY_STAGES, FRIENDLY_META } from './stages'
 
 const HISTORY_STORAGE_KEY = 'voice-lite-sql-history'
 
 export default function App() {
-  const [question, setQuestion] = useState('')
+  const [draftQuestion, setDraftQuestion] = useState('')
+  const [submittedQuestion, setSubmittedQuestion] = useState('')
   const [status, setStatus] = useState<SystemStatus | null>(null)
   const [schema, setSchema] = useState<SchemaPayload | null>(null)
   const [demos, setDemos] = useState<DemoQuestion[]>([])
@@ -161,7 +160,8 @@ export default function App() {
       setSubmitting(true)
       modeRef.current = 'text'
       setProcessing(true)
-      setQuestion('') // Clear input immediately after submit
+      setSubmittedQuestion(text.trim()) // Store the submitted question for display
+      setDraftQuestion('') // Clear input immediately after submit
       handleRef.current = runTextStream(
         text.trim(),
         handleStreamEvent,
@@ -206,7 +206,7 @@ export default function App() {
     const transcript = await transcribeVoiceFile(file)
     if (transcript) {
       console.log('[Voice] Transcript received:', transcript)
-      setQuestion(transcript)
+      setDraftQuestion(transcript)
     } else {
       console.warn('[Voice] No transcript returned from Whisper')
     }
@@ -260,32 +260,6 @@ export default function App() {
     })
   }, [completed, latencies, failedKeys, processing, result])
 
-  const stageStatuses: StageStatus[] = useMemo(() => {
-    const skipped = new Set<string>()
-    if (!processing && result && !result.correction && !completed.has('correction')) {
-      skipped.add('correction')
-    }
-    return FRIENDLY_STAGES.map((key) => {
-      const meta = FRIENDLY_META.find((m) => m.key === key)
-      const isCompleted = completed.has(key)
-      const isFailed = failedKeys.has(key)
-      const isActive = processing && !isCompleted && !isFailed && !skipped.has(key)
-      let state: StageState = 'pending'
-      if (skipped.has(key)) state = 'skipped'
-      else if (isFailed) state = 'error'
-      else if (isCompleted) state = 'done'
-      else if (isActive) state = 'active'
-      return {
-        key,
-        label: meta?.label || key,
-        level: meta?.level || '',
-        state,
-        latency_ms: latencies[key] ?? null,
-        error: isFailed ? 'Failed' : undefined,
-      }
-    })
-  }, [completed, latencies, failedKeys, processing, result])
-
   const onAbort = useCallback(() => {
     handleRef.current?.abort()
     setProcessing(false)
@@ -295,12 +269,12 @@ export default function App() {
 
   const handleSelectConversation = useCallback((entry: HistoryEntry) => {
     setSelectedConversation(entry)
-    setQuestion(entry.question)
+    // Don't modify draftQuestion when selecting history - keep composer independent
   }, [])
 
   const handleNewConversation = useCallback(() => {
     setSelectedConversation(null)
-    setQuestion('')
+    setDraftQuestion('')
     resetRun()
   }, [resetRun])
 
@@ -355,6 +329,19 @@ export default function App() {
     }
   }, [currentDatasource, activeDatabase])
   const backendReady = status?.backend?.state === 'ready'
+
+  const messages = useMemo(() => {
+    if (selectedConversation) {
+      return [
+        { id: `${selectedConversation.id}-user`, role: 'user' as const, question: selectedConversation.question, timestamp: selectedConversation.timestamp, mode: selectedConversation.mode },
+        { id: `${selectedConversation.id}-assistant`, role: 'assistant' as const, question: selectedConversation.question, answer: buildAnswerViewModel(selectedConversation.result, selectedConversation.database), timestamp: selectedConversation.timestamp, database: selectedConversation.database, executionTime: selectedConversation.executionTime, result: selectedConversation.result, sql: selectedConversation.result.final_sql, mode: selectedConversation.mode },
+      ] as import('./types').ConversationMessage[]
+    }
+    if (result) {
+      return [{ id: String(crypto.randomUUID()), role: 'assistant' as const, question: submittedQuestion, answer: buildAnswerViewModel({ ...result, execution: result.execution }, activeSource?.name ?? ''), timestamp: new Date().toISOString(), database: activeSource?.name ?? '', executionTime: result.execution?.execution_time_ms, result: result, sql: result.final_sql, mode: modeRef.current } as import('./types').ConversationMessage]
+    }
+    return []
+  }, [selectedConversation, result, submittedQuestion, activeSource, modeRef])
 
   return (
     <div className={`app-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -427,41 +414,22 @@ export default function App() {
           )}
 
           <div className="conversation-view-wrapper">
-            <ConversationView
-              messages={selectedConversation
-                ? [
-                    { id: `${selectedConversation.id}-user`, role: 'user' as const, question: selectedConversation.question, timestamp: selectedConversation.timestamp, mode: selectedConversation.mode },
-                    { id: `${selectedConversation.id}-assistant`, role: 'assistant' as const, question: selectedConversation.question, answer: buildAnswerViewModel(selectedConversation.result, selectedConversation.database), timestamp: selectedConversation.timestamp, database: selectedConversation.database, executionTime: selectedConversation.executionTime, result: selectedConversation.result, sql: selectedConversation.result.final_sql, mode: selectedConversation.mode },
-                  ] as import('./types').ConversationMessage[]
-                : result
-                ? [{ id: String(crypto.randomUUID()), role: 'assistant' as const, question: question, answer: buildAnswerViewModel({ ...result, execution: result.execution }, activeSource?.name ?? ''), timestamp: new Date().toISOString(), database: activeSource?.name ?? '', executionTime: result.execution?.execution_time_ms, result: result, sql: result.final_sql, mode: modeRef.current } as import('./types').ConversationMessage]
-                : []}
+<ConversationView
+              messages={messages}
               processing={processing}
               mode={modeRef.current}
               stageStatuses={rawStageStatuses}
-              activeQuestion={question}
+              activeQuestion={submittedQuestion}
               researchMode={researchMode}
               suggestions={demos.map(d => d.question)}
-              onAsk={(q: string) => setQuestion(q)}
+              onAsk={(q: string) => setDraftQuestion(q)}
             />
-
-            {result && (
-              <>
-                <ProcessingTrace
-                  stages={stageStatuses}
-                  processing={processing}
-                  mode={modeRef.current}
-                  question={question}
-                  result={result}
-                />
-              </>
-            )}
           </div>
 
           <QueryComposer
-            value={question}
-            onChange={setQuestion}
-            onSubmit={() => beginTextRun(question)}
+            value={draftQuestion}
+            onChange={setDraftQuestion}
+            onSubmit={() => beginTextRun(draftQuestion)}
             onVoiceFile={handleVoiceFile}
             disabled={processing || submitting}
             processing={processing}

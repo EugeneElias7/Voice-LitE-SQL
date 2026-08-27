@@ -145,13 +145,19 @@ function AssistantMessage({
           <div className="message-actions">
             {answer.type !== 'error' && answer.speechText && (
               <button
-                className={`action-chip ${speech.speaking ? 'speaking' : ''}`}
+                className={`action-chip ${speech.speaking ? 'speaking' : ''} ${speech.loading ? 'loading' : ''}`}
                 onClick={() => (speech.speaking ? speech.stop() : speech.speak(answer.speechText))}
+                disabled={speech.loading}
               >
                 {speech.speaking ? (
                   <>
                     <Square size={14} strokeWidth={1.75} />
                     Speaking… Stop
+                  </>
+                ) : speech.loading ? (
+                  <>
+                    <div className="spinner-small" />
+                    Loading…
                   </>
                 ) : (
                   <>

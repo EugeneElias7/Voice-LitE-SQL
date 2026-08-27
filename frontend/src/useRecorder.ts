@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+export type VoiceState = 
+  | 'idle'
+  | 'requesting_permission'
+  | 'recording'
+  | 'stopping'
+  | 'transcribing'
+  | 'ready'
+  | 'error'
+
 export interface RecorderState {
   recording: boolean
   elapsed: number
@@ -16,6 +25,8 @@ export interface RecorderState {
   interimTranscript: string
   recognitionActive: boolean
   snapshotTranscript: () => string
+  voiceState: VoiceState
+  setVoiceState: (state: VoiceState) => void
 }
 
 interface SpeechRecognitionConstructor {
@@ -96,6 +107,7 @@ export function useRecorder(onPermissionDenied?: (message: string) => void): Rec
   const [transcript, setTranscript] = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')
   const [recognitionActive, setRecognitionActive] = useState(false)
+  const [voiceState, setVoiceState] = useState<VoiceState>('idle')
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -222,9 +234,11 @@ export function useRecorder(onPermissionDenied?: (message: string) => void): Rec
     setError(null)
     setTranscript('')
     setInterimTranscript('')
+    setVoiceState('requesting_permission')
     if (!window.navigator?.mediaDevices?.getUserMedia) {
       const message = 'Microphone API is not available in this browser'
       setError(message)
+      setVoiceState('error')
       onPermissionDenied?.(message)
       return
     }
@@ -258,6 +272,7 @@ export function useRecorder(onPermissionDenied?: (message: string) => void): Rec
         return
       }
     }
+    setVoiceState('recording')
     const mimeType = pickMimeType()
     let recorder: MediaRecorder
     try {
@@ -289,6 +304,7 @@ export function useRecorder(onPermissionDenied?: (message: string) => void): Rec
     if (!recorder || recorder.state === 'inactive') return null
     const mime = recorder.mimeType || pickMimeType() || 'audio/webm'
     const extension = mime.includes('mp4') ? 'mp4' : mime.includes('ogg') ? 'ogg' : 'webm'
+    setVoiceState('stopping')
     const file = await new Promise<File | null>((resolve) => {
       recorder.onstop = () => {
         const type = recorder.mimeType || mime
@@ -302,6 +318,7 @@ export function useRecorder(onPermissionDenied?: (message: string) => void): Rec
     stopStream()
     stopRecognition()
     setRecording(false)
+    setVoiceState('transcribing')
     mediaRecorderRef.current = null
     return file
   }, [clearTimer, stopStream])
@@ -348,5 +365,7 @@ export function useRecorder(onPermissionDenied?: (message: string) => void): Rec
     interimTranscript,
     recognitionActive,
     snapshotTranscript,
+    voiceState,
+    setVoiceState,
   }
 }

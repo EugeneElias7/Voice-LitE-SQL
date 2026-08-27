@@ -761,12 +761,13 @@ def create_app() -> FastAPI:
     # --- TTS -------------------------------------------------------------------
     @app.post("/api/tts")
     def text_to_speech(payload: dict):
-        """Generate speech from text using local TTS (Windows SAPI)."""
+        """Generate speech from text using local TTS (Windows SAPI with improved voice)."""
         text = payload.get("text", "")
+        voice = payload.get("voice", "af_heart")  # Default to female voice
         if not text:
             raise HTTPException(status_code=422, detail="text is required")
 
-        # Try Windows SAPI via PowerShell
+        # Try Windows SAPI via PowerShell with better voice selection
         import subprocess
         import tempfile
 
@@ -774,12 +775,36 @@ def create_app() -> FastAPI:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 wav_path = tmp.name
 
-            # Use PowerShell with SAPI.SpVoice
+            # Map voice names to Windows SAPI voice names
+            voice_map = {
+                "af_heart": "Microsoft Zira Desktop",  # Female, natural
+                "af_bella": "Microsoft Hazel Desktop",  # Female, British
+                "af_nicole": "Microsoft Susan Desktop",  # Female
+                "am_michael": "Microsoft David Desktop",  # Male
+                "am_fenrir": "Microsoft Mark Desktop",  # Male
+            }
+            sapi_voice = voice_map.get(voice, "Microsoft Zira Desktop")
+
+            # Clean text for PowerShell - escape special characters
+            clean_text = text.replace('"', '""').replace("'", "''").replace("`", "``")
+
+            # Use PowerShell with SAPI.SpVoice with voice selection
             ps_script = f'''
 Add-Type -AssemblyName System.Speech
 $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
-$synth.SetOutputToWaveFile("{wav_path}")
-$synth.Speak("{text.replace('"', '""')}")
+# Try to select the requested voice
+$voice = $synth.GetInstalledVoices() | Where-Object {{ $_.VoiceInfo.Name -like "*{sapi_voice}*" }} | Select-Object -First 1
+if ($voice) {{
+    $synth.SelectVoice($voice.VoiceInfo.Name)
+}} else {{
+    # Fallback to any female voice
+    $femaleVoice = $synth.GetInstalledVoices() | Where-Object {{ $_.VoiceInfo.Gender -eq "Female" }} | Select-Object -First 1
+    if ($femaleVoice) {{ $synth.SelectVoice($femaleVoice.VoiceInfo.Name) }}
+}}
+$synth.Rate = 0
+$synth.Volume = 100
+$synth.SetOutputToWaveFile("{wav_path.replace("\\", "\\\\")}")
+$synth.Speak("{clean_text.replace('"', '""')}")
 $synth.Dispose()
 '''
             result = subprocess.run(

@@ -282,11 +282,11 @@ export function fetchSuggestions(): Promise<SuggestionsResponse> {
 }
 
 // --- TTS ---
-export function textToSpeech(text: string): Promise<Blob> {
+export function textToSpeech(text: string, voice?: string): Promise<Blob> {
   return fetch(`${getApiBase()}/tts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, voice }),
   }).then(async (res) => {
     if (!res.ok) throw new Error(`TTS failed: ${res.status}`)
     return res.blob()
