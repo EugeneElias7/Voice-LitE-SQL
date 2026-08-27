@@ -36,6 +36,7 @@ export default function App() {
   const [showModelSelector, setShowModelSelector] = useState(false)
   const [showDatasourceSelector, setShowDatasourceSelector] = useState(false)
   const [dismissedBackendOffline, setDismissedBackendOffline] = useState(false)
+  const [researchMode, setResearchMode] = useState(false)
   const [activeDatasourceId, setActiveDatasourceId] = useState<string>('enterprise')
   const [activeDatabase, setActiveDatabase] = useState<string>('')
   const [activeModel, setActiveModel] = useState<string>('qwen2.5-coder:1.5b')
@@ -337,6 +338,10 @@ export default function App() {
     setDismissedBackendOffline(false)
   }, [refreshStatus, refreshDemos, refreshModels, refreshDatasources])
 
+  const onToggleResearch = useCallback(() => {
+    setResearchMode(prev => !prev)
+  }, [])
+
   const currentDatasource = useMemo(
     () => datasources.find((d) => d.id === activeDatasourceId) ?? datasources[0] ?? null,
     [datasources, activeDatasourceId],
@@ -375,11 +380,11 @@ export default function App() {
             models={models?.models ?? []}
             onSelectSource={handleDatasourceSelect}
             onSelectModel={handleModelSelect}
-            researchMode={false}
-            onToggleResearch={() => {}}
+            researchMode={researchMode}
+            onToggleResearch={onToggleResearch}
             backendReady={backendReady}
             conversationTitle={selectedConversation ? selectedConversation.question.slice(0, 50) : null}
-            onReconnect={() => {}}
+            onReconnect={onReconnect}
           />
 
           {!backendReady && !dismissedBackendOffline && (
@@ -435,7 +440,7 @@ export default function App() {
               mode={modeRef.current}
               stageStatuses={rawStageStatuses}
               activeQuestion={question}
-              researchMode={false}
+              researchMode={researchMode}
               suggestions={demos.map(d => d.question)}
               onAsk={(q: string) => setQuestion(q)}
             />

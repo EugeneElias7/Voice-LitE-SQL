@@ -188,18 +188,48 @@ button:active:not(:disabled),
   transition: transform 80ms var(--ease-micro);
 }
 
-/* Pill active state enhancement */
+/* Pill active state enhancement - make it very obvious */
 .pill.active,
 .pill[aria-pressed="true"] {
   border-color: var(--primary);
-  background: rgba(111, 140, 255, 0.14);
+  border-width: 2px;
+  background: rgba(111, 140, 255, 0.18);
   color: var(--primary);
-  box-shadow: 0 0 0 1px rgba(111, 140, 255, 0.12), inset 0 0 0 1px rgba(111, 140, 255, 0.12);
+  box-shadow: 
+    0 0 0 2px rgba(111, 140, 255, 0.15),
+    0 0 12px rgba(111, 140, 255, 0.15),
+    inset 0 0 0 1px rgba(111, 140, 255, 0.2);
 }
 
 .pill.active svg,
 .pill[aria-pressed="true"] svg {
   color: var(--primary);
+}
+
+/* Active pill also gets a subtle pulse when first activated */
+.pill.active:not(.loading):not(.switching) {
+  animation: activePulse 0.4s var(--ease-out);
+}
+
+@keyframes activePulse {
+  0% {
+    box-shadow: 
+      0 0 0 2px rgba(111, 140, 255, 0.15),
+      0 0 12px rgba(111, 140, 255, 0.15),
+      inset 0 0 0 1px rgba(111, 140, 255, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 4px rgba(111, 140, 255, 0.25),
+      0 0 20px rgba(111, 140, 255, 0.25),
+      inset 0 0 0 2px rgba(111, 140, 255, 0.3);
+  }
+  100% {
+    box-shadow: 
+      0 0 0 2px rgba(111, 140, 255, 0.15),
+      0 0 12px rgba(111, 140, 255, 0.15),
+      inset 0 0 0 1px rgba(111, 140, 255, 0.2);
+  }
 }
 
 /* Focus visible states */
@@ -774,7 +804,7 @@ textarea {
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 180ms var(--ease-micro), border-color 180ms var(--ease-micro), color 180ms var(--ease-micro), box-shadow 180ms var(--ease-micro), transform 80ms var(--ease-micro);
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, color 180ms ease, transform 80ms ease;
   white-space: nowrap;
 }
 
@@ -797,8 +827,8 @@ textarea {
 }
 
 .pill:hover {
-  background: var(--panel-2);
-  border-color: var(--border-strong);
+  border-color: #3a4760;
+  background: #151b29;
 }
 
 .pill:active {
@@ -807,15 +837,28 @@ textarea {
 
 .pill.active,
 .pill[aria-pressed="true"] {
-  border-color: var(--primary);
-  background: var(--primary-soft);
-  color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary), inset 0 0 0 1px var(--primary);
+  border-color: #6f8cff;
+  background: rgba(111, 140, 255, 0.10);
+  color: #c8d3ff;
+  box-shadow: 0 0 0 1px rgba(111, 140, 255, 0.12),
+              0 0 14px rgba(111, 140, 255, 0.12);
 }
 
 .pill.active svg,
 .pill[aria-pressed="true"] svg {
-  color: var(--primary);
+  color: #8fa6ff;
+}
+
+.pill:active {
+  transform: scale(0.98);
+}
+
+.pill:focus-visible {
+  outline: none;
+  border-color: #6f8cff;
+  box-shadow:
+    0 0 0 3px rgba(111, 140, 255, 0.18),
+    0 0 14px rgba(111, 140, 255, 0.10);
 }
 
 .pill.loading {
