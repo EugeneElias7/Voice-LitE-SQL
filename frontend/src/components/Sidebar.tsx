@@ -58,7 +58,7 @@ export function Sidebar({
         </button>
       </div>
 
-      <div className="sidebar-body">
+      <div className="sidebar-body" style={{overflowY: 'auto', overflowX: 'hidden', scrollBehavior: 'smooth'}}>
         {!collapsed && (
           <button className="btn-new" onClick={onNewConversation}>
             <MessageSquarePlus size={16} strokeWidth={1.75} />

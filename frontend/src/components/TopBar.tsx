@@ -31,7 +31,7 @@ export function TopBar({
   onReconnect,
 }: TopBarProps) {
   return (
-    <header className="top-bar">
+    <header className="top-bar" data-ui-version="VOICE-LITE-SQL-UI-V2">
       <div className="top-bar-left">
         {conversationTitle ? (
           <span className="conversation-title">{conversationTitle}</span>

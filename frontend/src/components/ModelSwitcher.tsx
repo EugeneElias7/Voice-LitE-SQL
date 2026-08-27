@@ -15,12 +15,8 @@ export function ModelSwitcher({
 }: ModelSwitcherProps) {
   const [open, setOpen] = useState(false)
   const [optimisticModel, setOptimisticModel] = useState(currentModel)
-  const [validating] = useState(false)
+  const [loading, setLoading] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  // biome-ignore lint/correctness/useState: validating state reserved for future async validation
-  // biome-ignore lint/correctness/useState: setter reserved for future async validation
-  const [, _unused] = useState(false)
 
   useEffect(() => {
     setOptimisticModel(currentModel)
@@ -38,26 +34,31 @@ export function ModelSwitcher({
 
   const handleSelect = useCallback(
     (model: string) => {
+      if (model !== optimisticModel) {
+        setLoading(true)
+      }
       setOptimisticModel(model)
       setOpen(false)
       onSelectModel(model)
+      // Reset loading after a short delay to show the spinner briefly
+      setTimeout(() => setLoading(false), 300)
     },
-    [onSelectModel]
+    [onSelectModel, optimisticModel]
   )
 
   return (
     <div className="popover-wrap" ref={ref}>
       <button
-        className={`pill ${validating ? 'validating' : ''}`}
+        className={`pill ${loading ? 'loading' : ''}`}
         onClick={() => setOpen(v => !v)}
         aria-haspopup="true"
         aria-expanded={open}
-        disabled={validating}
-        title={validating ? 'Checking model…' : optimisticModel}
+        disabled={loading}
+        title={loading ? 'Switching model…' : optimisticModel}
       >
         <span className="model-name">{optimisticModel}</span>
         <ChevronDown className="pill-chevron" size={13} strokeWidth={1.75} />
-        {validating && <Loader2 size={14} className="spinner" strokeWidth={1.75} />}
+        {loading && <Loader2 size={14} className="spinner" strokeWidth={1.75} />}
       </button>
 
       {open && (
@@ -68,7 +69,7 @@ export function ModelSwitcher({
               className="popover-close"
               onClick={() => setOpen(false)}
               aria-label="Close"
-              disabled={validating}
+              disabled={loading}
             >
               <X size={14} strokeWidth={1.75} />
             </button>
@@ -79,7 +80,7 @@ export function ModelSwitcher({
                 key={model.name}
                 className={`popover-item ${optimisticModel === model.name ? 'active' : ''}`}
                 onClick={() => handleSelect(model.name)}
-                disabled={validating}
+                disabled={loading}
               >
                 <span className="popover-item-main">
                   <span className="popover-item-name mono" style={{ fontFamily: 'var(--mono)' }}>

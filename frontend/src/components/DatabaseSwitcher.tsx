@@ -25,7 +25,7 @@ export function DatabaseSwitcher({
 }: DatabaseSwitcherProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [databases, setDatabases] = useState<{ id: string; source: string }[]>([])
+  const [databases, setDatabases] = useState<Array<{ id: string; source: string }>>([])
   const [loading, setLoading] = useState(false)
   const [expandedBenchmark, setExpandedBenchmark] = useState<string | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -76,29 +76,39 @@ export function DatabaseSwitcher({
       : activeSource.name
     : 'Select Database'
 
+  const isLoadingBenchmark = loading && (expandedBenchmark !== null)
+  const isSwitching = loading
+
   const localSources = sources.filter(s => s.type === 'local')
   const benchmarkSources = sources.filter(s => s.type === 'benchmark')
-  
+
   // Filter local sources by search
-  const filteredLocalSources = localSources.filter(s => 
+  const filteredLocalSources = localSources.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
   )
-  
-  // Filter benchmark databases by search
-  
+
+  // Filter benchmark databases by search - show all benchmark sources, filter databases only when expanded
+  const filteredBenchmarkSources = benchmarkSources.map(source => ({
+    ...source,
+    databases: expandedBenchmark === source.id
+      ? databases.filter(d => d.source === source.id && d.id.toLowerCase().includes(search.toLowerCase()))
+      : (source.databases || []).map(d => ({ id: d.id, source: d.path || '' }))
+  })).filter(source => expandedBenchmark === source.id || (source.databases || []).length > 0 || databases.some(d => d.source === source.id))
 
   return (
     <div className="popover-wrap" ref={ref}>
       <button
-        className="pill"
+        className={`pill ${isSwitching ? 'switching' : ''} ${isLoadingBenchmark ? 'loading' : ''}`}
         onClick={() => setOpen(v => !v)}
         aria-haspopup="true"
         aria-expanded={open}
         title={activeName}
+        disabled={isLoadingBenchmark || isSwitching}
       >
         <Database size={15} strokeWidth={1.75} />
-        <span>{activeName}</span>
+        <span>{isSwitching ? 'Switching…' : activeName}</span>
         <ChevronDown className="pill-chevron" size={13} strokeWidth={1.75} />
+        {(isLoadingBenchmark || isSwitching) && <Loader2 size={14} className="spinner" strokeWidth={1.75} />}
       </button>
 
       {open && (
@@ -130,32 +140,35 @@ export function DatabaseSwitcher({
 
           <div className="popover-body">
             {/* Local sources */}
-            {filteredLocalSources.map(source => (
-              <button
-                key={source.id}
-                className={`popover-item ${source.id === activeSource?.id ? 'active' : ''}`}
-                onClick={() => handleSelect(source)}
-                disabled={Boolean(source.error)}
-              >
-                <Database size={16} strokeWidth={1.75} />
-                <div className="popover-item-main">
-                  <span className="popover-item-name">{source.name}</span>
-                  <span className="popover-item-sub">
-                    Local SQLite
-                    {source.database && ` · ${source.database}`}
-                    {source.tables && source.rows && ` · ${source.tables} tables · ${source.rows.toLocaleString()} rows`}
-                  </span>
-                </div>
-                {source.id === activeSource?.id && (
-                  <Check className="popover-item-check" size={16} strokeWidth={1.75} />
-                )}
-              </button>
-            ))}
+            {filteredLocalSources.map(source => {
+              const isActive = source.id === activeSource?.id && !activeSource?.database
+              return (
+                <button
+                  key={source.id}
+                  className={`popover-item ${isActive ? 'active' : ''}`}
+                  onClick={() => handleSelect(source)}
+                  disabled={Boolean(source.error)}
+                >
+                  <Database size={16} strokeWidth={1.75} />
+                  <div className="popover-item-main">
+                    <span className="popover-item-name">{source.name}</span>
+                    <span className="popover-item-sub">
+                      Local SQLite
+                      {source.database && ` · ${source.database}`}
+                      {source.tables && source.rows && ` · ${source.tables} tables · ${source.rows.toLocaleString()} rows`}
+                    </span>
+                  </div>
+                  {isActive && (
+                    <Check className="popover-item-check" size={16} strokeWidth={1.75} />
+                  )}
+                </button>
+              )
+            })}
 
             {/* Benchmark sources */}
-            {benchmarkSources.map(source => {
+            {filteredBenchmarkSources.map(source => {
               const isExpanded = expandedBenchmark === source.id
-              const sourceDatabases = databases.filter(d => d.source === source.id && d.id.toLowerCase().includes(search.toLowerCase()))
+              const sourceDatabases = source.databases
               const isLoading = loading && !databases.some(d => d.source === source.id)
 
               return (
@@ -170,6 +183,7 @@ export function DatabaseSwitcher({
                   }}
                   loading={isLoading}
                   databases={sourceDatabases}
+                  activeSource={activeSource}
                   onSelect={id => {
                     const s = sources.find(src => src.id === source.id)
                     if (s) handleSelect(s, id)
@@ -202,6 +216,7 @@ interface BenchmarkSectionProps {
   onToggle: () => void
   loading: boolean
   databases: { id: string; source: string }[]
+  activeSource: DataSource | null
   onSelect: (dbId: string) => void
 }
 
@@ -212,6 +227,7 @@ function BenchmarkSection({
   onToggle,
   loading,
   databases,
+  activeSource,
   onSelect,
 }: BenchmarkSectionProps) {
   return (
@@ -244,16 +260,22 @@ function BenchmarkSection({
             ) : databases.length === 0 ? (
               <div className="popover-empty">No matching databases</div>
             ) : (
-              databases.map(db => (
-                <button key={db.id} className="popover-item" onClick={() => onSelect(db.id)}>
-                  <Database size={16} strokeWidth={1.75} />
-                  <span className="popover-item-main">
-                    <span className="popover-item-name mono" style={{ fontFamily: 'var(--mono)' }}>
-                      {db.id}
+              databases.map(db => {
+                const isActive = activeSource?.database === db.id
+                return (
+                  <button key={db.id} className={`popover-item ${isActive ? 'active' : ''}`} onClick={() => onSelect(db.id)}>
+                    <Database size={16} strokeWidth={1.75} />
+                    <span className="popover-item-main">
+                      <span className="popover-item-name mono" style={{ fontFamily: 'var(--mono)' }}>
+                        {db.id}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              ))
+                    {isActive && (
+                      <Check className="popover-item-check" size={16} strokeWidth={1.75} />
+                    )}
+                  </button>
+                )
+              })
             )}
           </div>
         </>

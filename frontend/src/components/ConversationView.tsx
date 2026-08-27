@@ -87,14 +87,16 @@ function EmptyConversation({
       <p className="empty-subtitle">
         Query your database using natural language or your voice.
       </p>
-      <div className="empty-suggestions">
-        <span className="empty-suggestions-label">Try asking</span>
-        {suggestions.map(s => (
-          <button key={s} className="empty-suggestion" onClick={() => onAsk(s)}>
-            <Sparkles size={14} strokeWidth={1.75} />
-            <span>{s}</span>
-          </button>
-        ))}
+      <div className="suggestions">
+        <span className="suggestions-title">Try asking</span>
+        <div className="suggestions-list">
+          {suggestions.map(s => (
+            <button key={s} className="suggestion" onClick={() => onAsk(s)}>
+              <Sparkles size={14} strokeWidth={1.75} />
+              <span>{s}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

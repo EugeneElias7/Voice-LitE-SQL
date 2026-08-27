@@ -35,7 +35,9 @@ export default function App() {
   const [showTechnical, setShowTechnical] = useState(false)
   const [showModelSelector, setShowModelSelector] = useState(false)
   const [showDatasourceSelector, setShowDatasourceSelector] = useState(false)
+  const [dismissedBackendOffline, setDismissedBackendOffline] = useState(false)
   const [activeDatasourceId, setActiveDatasourceId] = useState<string>('enterprise')
+  const [activeDatabase, setActiveDatabase] = useState<string>('')
   const [activeModel, setActiveModel] = useState<string>('qwen2.5-coder:1.5b')
   const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory())
   const handleRef = useRef<StreamHandle | null>(null)
@@ -43,6 +45,7 @@ export default function App() {
   const [pipelineState, setPipelineState] = useState<'idle' | 'listening' | 'understanding' | 'retrieval' | 'generation' | 'validation' | 'execution' | 'answer' | 'error'>('idle')
   const [submitting, setSubmitting] = useState(false)
   const [selectedConversation, setSelectedConversation] = useState<HistoryEntry | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const transition = (newState: typeof pipelineState) => {
     setPipelineState(newState)
@@ -306,6 +309,7 @@ export default function App() {
       if (res.ok) {
         setSchema(res.schema)
         setActiveDatasourceId(source.id)
+        setActiveDatabase(res.schema.database || '')
         setShowDatasourceSelector(false)
       }
     } catch (e) {
@@ -325,19 +329,33 @@ export default function App() {
     }
   }, [])
 
+  const onReconnect = useCallback(() => {
+    refreshStatus()
+    refreshDemos()
+    refreshModels()
+    refreshDatasources()
+    setDismissedBackendOffline(false)
+  }, [refreshStatus, refreshDemos, refreshModels, refreshDatasources])
+
   const currentDatasource = useMemo(
-    () => datasources.find((d) => d.id === activeDatasourceId) ?? datasources[0],
+    () => datasources.find((d) => d.id === activeDatasourceId) ?? datasources[0] ?? null,
     [datasources, activeDatasourceId],
   )
 
-  const activeSource = currentDatasource
+  const activeSource = useMemo(() => {
+    if (!currentDatasource) return null
+    return {
+      ...currentDatasource,
+      database: activeDatabase || currentDatasource.database,
+    }
+  }, [currentDatasource, activeDatabase])
   const backendReady = status?.backend?.state === 'ready'
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <Sidebar
-        collapsed={false}
-        onToggleCollapse={() => {}}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(v => !v)}
         conversations={history}
         currentConversationId={selectedConversation?.id ?? null}
         onSelectConversation={handleSelectConversation}
@@ -364,26 +382,42 @@ export default function App() {
             onReconnect={() => {}}
           />
 
-          {!backendReady && (
-            <ErrorBanner
-              title="Backend offline"
-              message="Cannot reach the Voice-LitE-SQL API. Start the FastAPI backend on port 8000."
-            />
+          {!backendReady && !dismissedBackendOffline && (
+            <div className="backend-offline-banner" role="alert">
+              <div className="banner-content">
+                <svg className="banner-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                <div className="banner-text">
+                  <strong>Backend offline</strong>
+                  <span>Cannot reach the Voice-LitE-SQL API. Start the FastAPI backend on port 8000.</span>
+                </div>
+                <div className="banner-actions">
+                  <button className="banner-dismiss" onClick={() => setDismissedBackendOffline(true)} aria-label="Dismiss">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                  <button className="banner-reconnect" onClick={onReconnect}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12a9 9 0 0 1-9 9c2.52 0 4.93-1.04 6.74-2.73L3 8l2.27-2.27C7.06 7.13 9.57 8 12 8c4.97 0 9 4.03 9 9z" />
+                    </svg>
+                    Reconnect
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
+
           {streamError && (
             <ErrorBanner
               title="Pipeline error"
               message={streamError}
               dismissible
               onDismiss={() => setStreamError(null)}
-            />
-          )}
-          {permissionError && (
-            <ErrorBanner
-              title="Microphone"
-              message={permissionError}
-              dismissible
-              onDismiss={() => setPermissionError(null)}
             />
           )}
 
@@ -428,7 +462,9 @@ export default function App() {
             processing={processing}
             onAbort={onAbort}
             onPermissionDenied={setPermissionError}
-            activeSourceName={activeSource?.name}
+            permissionError={permissionError}
+            onPermissionDismiss={() => setPermissionError(null)}
+            activeSourceName={activeSource?.database ? `${activeSource.name} / ${activeSource.database}` : activeSource?.name}
           />
         </div>
       </main>

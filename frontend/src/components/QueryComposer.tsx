@@ -11,6 +11,8 @@ interface QueryComposerProps {
   processing: boolean
   onAbort: () => void
   onPermissionDenied: (message: string) => void
+  permissionError?: string | null
+  onPermissionDismiss?: () => void
   activeSourceName?: string
 }
 
@@ -23,6 +25,8 @@ export function QueryComposer({
   processing,
   onAbort,
   onPermissionDenied,
+  permissionError,
+  onPermissionDismiss,
   activeSourceName,
 }: QueryComposerProps) {
   const recorder = useRecorder(onPermissionDenied)
@@ -30,6 +34,7 @@ export function QueryComposer({
   const frameRef = useRef<HTMLDivElement>(null)
   const [voiceActive, setVoiceActive] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
+  const [voiceState, setVoiceState] = useState<'idle' | 'recording' | 'transcribing' | 'ready' | 'error'>('idle')
 
   useEffect(() => {
     if (recorder.error) {
@@ -71,6 +76,7 @@ export function QueryComposer({
     if (processing || disabled) return
     setVoiceActive(true)
     setTranscribing(false)
+    setVoiceState('recording')
     await recorder.start()
   }, [recorder, processing, disabled])
 
@@ -78,17 +84,20 @@ export function QueryComposer({
     recorder.cancel()
     setVoiceActive(false)
     setTranscribing(false)
+    setVoiceState('idle')
   }, [recorder])
 
   const stopVoice = useCallback(async () => {
     if (transcribing) return
     setTranscribing(true)
+    setVoiceState('transcribing')
     const file = await recorder.stop()
     if (file) {
       onVoiceFile(file)
     }
     setVoiceActive(false)
     setTranscribing(false)
+    setVoiceState('ready')
     requestAnimationFrame(() => textareaRef.current?.focus())
   }, [recorder, transcribing, onVoiceFile])
 
@@ -120,10 +129,18 @@ export function QueryComposer({
     <div className="query-composer">
       <div className="composer-frame" ref={frameRef}>
         {voiceActive ? (
-          <div className="composer-voice">
+          <div className={`composer-voice voice-state-${voiceState}`}>
             <div className="voice-status">
               <span className="rec-dot" />
-              {transcribing ? 'Transcribing…' : `Listening… ${String(recorder.elapsed).padStart(2, '0')}`}
+              {voiceState === 'recording'
+                ? `Listening… ${String(recorder.elapsed).padStart(2, '0')}`
+                : voiceState === 'transcribing'
+                ? 'Transcribing…'
+                : voiceState === 'ready'
+                ? 'Transcript ready — press Send'
+                : voiceState === 'error'
+                ? 'Error — try again'
+                : `Listening… ${String(recorder.elapsed).padStart(2, '0')}`}
             </div>
             {recorder.devices.length > 1 && (
               <div className="voice-device-selector">
@@ -155,9 +172,9 @@ export function QueryComposer({
                 <X size={15} strokeWidth={1.75} />
                 Cancel
               </button>
-              <button className="voice-btn primary" onClick={stopVoice} disabled={transcribing}>
+              <button className="voice-btn primary" onClick={stopVoice} disabled={voiceState !== 'recording'}>
                 <Mic size={15} strokeWidth={1.75} />
-                {transcribing ? 'Transcribing…' : 'Stop & Send'}
+                {voiceState === 'recording' ? 'Stop & Send' : voiceState === 'transcribing' ? 'Transcribing…' : 'Stop & Send'}
               </button>
             </div>
           </div>
@@ -187,11 +204,11 @@ export function QueryComposer({
               />
               <button
                 type="button"
-                className="composer-icon-btn voice"
+                className={`composer-icon-btn voice ${voiceActive ? 'active' : ''}`}
                 onClick={startVoice}
                 disabled={processing}
                 aria-label="Voice input"
-                title="Voice input"
+                title={voiceActive ? 'Recording… Click to stop' : 'Voice input'}
               >
                 <Mic size={18} strokeWidth={1.75} />
               </button>
@@ -232,6 +249,24 @@ export function QueryComposer({
           </>
         )}
       </div>
+      {permissionError && (
+        <div className="mic-error-banner" role="alert">
+          <svg className="error-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+          <span className="error-text">{permissionError}</span>
+          {onPermissionDismiss && (
+            <button type="button" className="error-dismiss" onClick={onPermissionDismiss} aria-label="Dismiss">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

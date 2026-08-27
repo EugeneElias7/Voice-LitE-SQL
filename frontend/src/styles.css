@@ -53,6 +53,8 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-micro: cubic-bezier(0.2, 0, 0.38, 1);
+  --ease-dropdown: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Elevation */
   --shadow-1: 0 4px 16px rgba(0, 0, 0, 0.28);
@@ -109,6 +111,7 @@ p {
 
 button {
   font-family: inherit;
+  transition: background-color 180ms var(--ease-micro), border-color 180ms var(--ease-micro), color 180ms var(--ease-micro), transform 80ms var(--ease-micro), box-shadow 180ms var(--ease-micro), opacity 180ms var(--ease-micro);
 }
 
 button:focus {
@@ -125,6 +128,94 @@ button:disabled {
   opacity: 0.35;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+button:hover:not(:disabled) {
+  /* subtle hover handled per-component */
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Active/selected state for toggle buttons and selectable items */
+button.active,
+button[aria-pressed="true"],
+button[aria-selected="true"],
+.popover-item.active,
+.history-item.active,
+.suggestion.active,
+.btn-new.active {
+  border-color: var(--primary);
+  background: rgba(111, 140, 255, 0.14);
+  color: var(--primary);
+  box-shadow: 0 0 0 1px rgba(111, 140, 255, 0.12), inset 0 0 0 1px rgba(111, 140, 255, 0.12);
+}
+
+button.active svg,
+button[aria-pressed="true"] svg,
+button[aria-selected="true"] svg,
+.popover-item.active svg,
+.history-item.active svg,
+.suggestion.active svg {
+  color: var(--primary);
+}
+
+/* Hover states for interactive elements */
+button:hover:not(:disabled):not(.active):not([aria-pressed="true"]),
+.pill:hover:not(:disabled):not(.active):not([aria-pressed="true"]),
+.popover-item:hover:not(.active),
+.history-item:hover:not(.active),
+.suggestion:hover:not(:active):not(:disabled),
+.btn-new:hover:not(:disabled):not(.active),
+.footer-btn:hover,
+.action-chip:hover,
+.suggestion:hover,
+.empty-suggestion:hover,
+.action-chip:hover {
+  background: var(--panel-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active:not(:disabled),
+.pill:active:not(:disabled),
+.action-chip:active,
+.suggestion:active,
+.empty-suggestion:active {
+  transform: scale(0.98);
+  transition: transform 80ms var(--ease-micro);
+}
+
+/* Pill active state enhancement */
+.pill.active,
+.pill[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: rgba(111, 140, 255, 0.14);
+  color: var(--primary);
+  box-shadow: 0 0 0 1px rgba(111, 140, 255, 0.12), inset 0 0 0 1px rgba(111, 140, 255, 0.12);
+}
+
+.pill.active svg,
+.pill[aria-pressed="true"] svg {
+  color: var(--primary);
+}
+
+/* Focus visible states */
+button:focus-visible,
+.pill:focus-visible,
+.action-chip:focus-visible,
+.suggestion:focus-visible,
+.empty-suggestion:focus-visible,
+.popover-item:focus-visible,
+.history-item:focus-visible,
+.popover-item:focus-visible,
+.btn-new:focus-visible,
+.footer-btn:focus-visible,
+.composer-icon-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 input,
@@ -153,12 +244,47 @@ textarea {
   background: var(--border-strong);
 }
 
-.mono {
-  font-family: var(--mono);
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-.muted {
-  color: var(--text-dim);
+/* Animation helpers */
+.animate-in {
+  animation: animateIn 200ms var(--ease-out) forwards;
+}
+
+.animate-out {
+  animation: animateOut 150ms var(--ease-in) forwards;
+}
+
+@keyframes animateIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes animateOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
 }
 
 /* ==========================================================================
@@ -170,6 +296,7 @@ textarea {
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   height: 100vh;
   overflow: hidden;
+  transition: grid-template-columns 220ms var(--ease-out);
 }
 
 .app-shell.sidebar-collapsed {
@@ -203,7 +330,7 @@ textarea {
   min-height: 0;
   overflow: hidden;
   z-index: 30;
-  transition: width 0.18s var(--ease-out);
+  transition: width 220ms var(--ease-out), border-color 220ms var(--ease-out);
 }
 
 .sidebar-header {
@@ -215,6 +342,7 @@ textarea {
   padding: 0 12px 0 14px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border-soft);
+  transition: padding 220ms var(--ease-out);
 }
 
 .logo {
@@ -222,6 +350,7 @@ textarea {
   align-items: center;
   gap: 8px;
   min-width: 0;
+  transition: gap 220ms var(--ease-out), opacity 180ms var(--ease-micro);
 }
 
 .logo-mark {
@@ -247,19 +376,16 @@ textarea {
   white-space: nowrap;
   overflow: hidden;
   opacity: 1;
-  transition: opacity 0.1s linear;
+  transition: opacity 150ms var(--ease-micro);
 }
 
 .sidebar.collapsed .logo-text {
   opacity: 0;
 }
 
-.logo-mini {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: 0;
-  white-space: nowrap;
+.sidebar.collapsed .logo {
+  gap: 0;
+  justify-content: center;
 }
 
 .sidebar-body {
@@ -270,6 +396,12 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  transition: opacity 180ms var(--ease-micro), padding 220ms var(--ease-out);
+}
+
+.sidebar.collapsed .sidebar-body > *:not(.sidebar-footer) {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .btn-new {
@@ -642,7 +774,7 @@ textarea {
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  transition: background 180ms var(--ease-micro), border-color 180ms var(--ease-micro), color 180ms var(--ease-micro), box-shadow 180ms var(--ease-micro), transform 80ms var(--ease-micro);
   white-space: nowrap;
 }
 
@@ -670,21 +802,35 @@ textarea {
 }
 
 .pill:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
-.pill.active {
-  border-color: var(--intelligence);
-  background: var(--intelligence-soft);
-  color: var(--intelligence);
+.pill.active,
+.pill[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), inset 0 0 0 1px var(--primary);
 }
 
-.pill.active svg {
-  color: var(--intelligence);
+.pill.active svg,
+.pill[aria-pressed="true"] svg {
+  color: var(--primary);
 }
 
-.pill.pill-icon {
-  padding: 0 10px;
+.pill.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.pill.switching,
+.pill.validating {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.pill.switching .pill-chevron {
+  display: none;
 }
 
 /* Status */
@@ -738,13 +884,13 @@ textarea {
   padding: 6px;
   z-index: 60;
   transform-origin: top right;
-  animation: popoverIn 0.15s var(--ease-out);
+  animation: popoverIn 180ms var(--ease-dropdown) forwards;
 }
 
 @keyframes popoverIn {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.96);
+    transform: translateY(-4px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -785,7 +931,7 @@ textarea {
   font-size: 12.5px;
   text-align: left;
   cursor: pointer;
-  transition: background 0.12s ease;
+  transition: background 180ms var(--ease-micro), border-color 180ms var(--ease-micro), color 180ms var(--ease-micro);
 }
 
 .popover-item:hover {
@@ -1060,44 +1206,48 @@ textarea {
 .suggestions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   padding: 0 24px;
-  margin-bottom: 16px;
-  max-width: 850px;
+  margin-bottom: 20px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .suggestions-title {
   font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-weight: 600,
+  text-transform: uppercase,
+  letter-spacing: 0.06em,
   color: var(--text-faint);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .suggestions-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
+  justify-content: center;
 }
 
 .suggestion {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
-  padding: 0 12px;
+  height: 40px;
+  min-width: 140px;
+  max-width: 280px;
+  padding: 0 16px;
   border-radius: var(--r-md);
   border: 1px solid var(--border);
   background: var(--panel);
   color: var(--text-dim);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  transition: background 180ms var(--ease-micro), border-color 180ms var(--ease-micro), color 180ms var(--ease-micro), box-shadow 180ms var(--ease-micro);
   white-space: nowrap;
   overflow: hidden;
 }
@@ -1106,10 +1256,33 @@ textarea {
   border-color: var(--border-strong);
   background: var(--panel-2);
   color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .suggestion:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.suggestion:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.suggestion:hover {
+  border-color: var(--border-strong);
+  background: var(--panel-2);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion:active {
+  transform: scale(0.98);
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
 .suggestion:disabled {
@@ -1134,7 +1307,7 @@ textarea {
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 0;
+  gap: 24px;
   padding: 24px;
 }
 
@@ -1146,7 +1319,7 @@ textarea {
   display: grid;
   place-items: center;
   color: var(--primary);
-  margin-bottom: 18px;
+  margin-bottom: 8px;
 }
 
 .empty-spark svg {
@@ -1155,18 +1328,19 @@ textarea {
 }
 
 .empty-title {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
-  line-height: 28px;
+  line-height: 32px;
   color: var(--text);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .empty-subtitle {
-  font-size: 14.5px;
+  font-size: 15px;
   color: var(--text-dim);
-  margin-bottom: 28px;
-  max-width: 420px;
+  margin-bottom: 24px;
+  max-width: 480px;
+  line-height: 1.6;
 }
 
 .empty-suggestions {
@@ -1175,23 +1349,26 @@ textarea {
   gap: 8px;
   width: 100%;
   max-width: 560px;
+  justify-content: center;
 }
 
 .empty-suggestion {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
+  min-width: 140px;
+  max-width: 280px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
   border: 1px solid var(--border);
   background: var(--panel);
   color: var(--text-dim);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  transition: background 180ms var(--ease-micro), border-color 180ms var(--ease-micro), color 180ms var(--ease-micro), box-shadow 180ms var(--ease-micro);
   white-space: nowrap;
   overflow: hidden;
 }
@@ -1212,10 +1389,19 @@ textarea {
   border-color: var(--border-strong);
   background: var(--panel-2);
   color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .empty-suggestion:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.empty-suggestion:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* Messages */
@@ -1317,7 +1503,7 @@ textarea {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition: background 180ms var(--ease-micro), color 180ms var(--ease-micro), border-color 180ms var(--ease-micro), box-shadow 180ms var(--ease-micro), transform 80ms var(--ease-micro);
   white-space: nowrap;
 }
 
@@ -1333,7 +1519,7 @@ textarea {
 }
 
 .action-chip:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 /* ==========================================================================
@@ -1382,9 +1568,9 @@ textarea {
 }
 
 .kpi-value {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.1;
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
@@ -1397,6 +1583,8 @@ textarea {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .answer-narrative {
@@ -1800,6 +1988,13 @@ textarea {
   color: var(--voice);
 }
 
+.composer-icon-btn.voice.active {
+  border-color: var(--voice);
+  background: var(--voice-soft);
+  color: var(--voice);
+  box-shadow: 0 0 0 1px var(--voice), inset 0 0 0 1px var(--voice);
+}
+
 .composer-textarea {
   flex: 1;
   min-width: 0;
@@ -1995,6 +2190,92 @@ textarea {
 
 .voice-btn.danger {
   color: var(--danger);
+}
+
+/* Voice state transitions */
+.composer-voice {
+  transition: all 180ms var(--ease-micro);
+}
+
+.composer-voice.voice-state-recording .voice-status {
+  color: var(--voice);
+}
+
+.composer-voice.voice-state-transcribing .voice-status {
+  color: var(--warning);
+}
+
+.composer-voice.voice-state-ready .voice-status {
+  color: var(--success);
+}
+
+.composer-voice.voice-state-error .voice-status {
+  color: var(--danger);
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: background-color 180ms var(--ease-micro);
+}
+
+.composer-voice.voice-state-recording .rec-dot {
+  animation: micPulse 1.4s ease-in-out infinite;
+}
+
+.composer-voice.voice-state-transcribing .rec-dot {
+  animation: none;
+  background: var(--warning);
+}
+
+.composer-voice.voice-state-ready .rec-dot {
+  animation: none;
+  background: var(--success);
+}
+
+.composer-voice.voice-state-error .rec-dot {
+  animation: none;
+  background: var(--danger);
+}
+
+@keyframes micPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 114, 182, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 114, 182, 0);
+  }
+}
+
+.voice-device-selector {
+  margin: 8px 0;
+  width: 100%;
+}
+
+.voice-device-selector label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.voice-device-selector select {
+  flex: 1;
+  padding: 6px 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--sans);
+}
+
+.voice-device-selector select:focus {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -2557,6 +2838,185 @@ textarea {
 .global-error-banner .banner-close svg {
   width: 14px;
   height: 14px;
+}
+
+/* ==========================================================================
+   Microphone error banner (inline near composer)
+   ========================================================================== */
+
+.mic-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: var(--r-md);
+  color: var(--danger);
+  font-size: 12.5px;
+  animation: messageIn 0.2s var(--ease-out);
+}
+
+.mic-error-banner .error-icon {
+  flex-shrink: 0;
+  color: var(--danger);
+}
+
+.mic-error-banner .error-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mic-error-banner .error-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--danger);
+}
+
+.mic-error-banner .error-dismiss {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 2px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.mic-error-banner .error-dismiss:hover {
+  opacity: 1;
+}
+
+.mic-error-banner .error-dismiss svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mic-error-banner .error-dismiss:hover {
+  opacity: 1;
+}
+
+.mic-error-banner .error-dismiss svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ==========================================================================
+   Inline Backend Offline Banner (compact, below TopBar)
+   ========================================================================== */
+
+.backend-offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--r-md);
+  margin: 8px 16px 0;
+  animation: slideDown 200ms var(--ease-out) forwards;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.backend-offline-banner .banner-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.backend-offline-banner .banner-icon {
+  color: var(--danger);
+  flex-shrink: 0;
+}
+
+.backend-offline-banner .banner-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.backend-offline-banner .banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.backend-offline-banner .banner-text strong {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.backend-offline-banner .banner-text span {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.backend-offline-banner .banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.backend-offline-banner .banner-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 4px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 120ms var(--ease-micro), color 120ms var(--ease-micro);
+}
+
+.backend-offline-banner .banner-dismiss:hover {
+  opacity: 1;
+  color: var(--text);
+}
+
+.backend-offline-banner .banner-dismiss svg {
+  width: 14px;
+  height: 14px;
+}
+
+.backend-offline-banner .banner-reconnect {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms var(--ease-micro), border-color 120ms var(--ease-micro), color 120ms var(--ease-micro);
+}
+
+.backend-offline-banner .banner-reconnect:hover {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
 }
 
 /* ==========================================================================
