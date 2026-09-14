@@ -3,7 +3,7 @@ services:
     name: voice-lite-sql-backend
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python -m backend.database.seed
+    buildCommand: grep -vE "^(pyaudio|sounddevice|soundcard|pycaw)" requirements.txt > /tmp/req.txt && pip install -r /tmp/req.txt && python -m backend.database.seed
     startCommand: uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
