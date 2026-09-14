@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+requests
+jellyfish
+rapidfuzz
+chromadb
+sqlglot
+numpy
+pandas
+python-dotenv

@@ -11,6 +11,8 @@ import threading
 from typing import Optional
 
 from backend.pipeline.pipeline_result import PipelineResult
+import os
+
 from backend.pipeline.voice_lite_sql import (
     DEFAULT_DB,
     DEFAULT_INDEX_DIR,
@@ -28,6 +30,8 @@ class PipelineService:
         self.index_dir = index_dir
         self._pipeline: Optional[VoiceLitESQLPipeline] = None
         self._lock = threading.RLock()
+        # Render free has no torch - use fake embedder via env
+        self._fake_embedder = os.getenv("FAKE_EMBEDDER", "false").lower() in ("1", "true", "yes")
 
     @property
     def database_name(self) -> str:
@@ -39,7 +43,7 @@ class PipelineService:
         with self._lock:
             if self._pipeline is None:
                 self._pipeline = VoiceLitESQLPipeline(
-                    PipelineConfig(db_path=self.db_path, index_dir=self.index_dir)
+                    PipelineConfig(db_path=self.db_path, index_dir=self.index_dir, fake_embedder=self._fake_embedder)
                 )
             return self._pipeline
 
