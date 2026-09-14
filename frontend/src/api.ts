@@ -14,8 +14,8 @@ import type {
   UploadResponse,
 } from './types'
 
-// Configurable API base with fallback support
-const API_BASE = '/api'
+// Configurable API base with fallback support - VITE_API_BASE from Vercel env
+const API_BASE = (import.meta.env.VITE_API_BASE as string) || '/api'
 let apiBaseOverride: string | null = null
 
 export function setApiBase(base: string | null) {
