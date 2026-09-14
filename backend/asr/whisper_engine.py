@@ -14,8 +14,14 @@ import time
 import wave
 from pathlib import Path
 
-import av
 import numpy as np
+
+try:
+    import av  # noqa: F401 - optional, only needed for voice
+    _AV_AVAILABLE = True
+except ImportError:
+    av = None  # type: ignore
+    _AV_AVAILABLE = False
 
 from backend.asr.models import TranscriptionResult
 
@@ -130,6 +136,8 @@ class WhisperEngine:
         """Convert any audio file to 16kHz mono PCM WAV using PyAV.
         Returns the path to the converted WAV file (temp file).
         """
+        if not _AV_AVAILABLE or av is None:
+            raise ASRError("PyAV not installed - voice transcription unavailable (pip install av)")
         # Open input with PyAV
         input_container = av.open(audio_path)
         audio_stream = None
