@@ -8,3 +8,4 @@ sqlglot
 numpy
 pandas
 python-dotenv
+python-multipart
