@@ -787,6 +787,8 @@ def create_app() -> FastAPI:
 
             # Clean text for PowerShell - escape special characters
             clean_text = text.replace('"', '""').replace("'", "''").replace("`", "``")
+            escaped_path = wav_path.replace("\\", "\\\\")
+            escaped_text = clean_text.replace('"', '""')
 
             # Use PowerShell with SAPI.SpVoice with voice selection
             ps_script = f'''
@@ -803,8 +805,8 @@ if ($voice) {{
 }}
 $synth.Rate = 0
 $synth.Volume = 100
-$synth.SetOutputToWaveFile("{wav_path.replace("\\", "\\\\")}")
-$synth.Speak("{clean_text.replace('"', '""')}")
+$synth.SetOutputToWaveFile("{escaped_path}")
+$synth.Speak("{escaped_text}")
 $synth.Dispose()
 '''
             result = subprocess.run(
