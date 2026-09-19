@@ -29,11 +29,20 @@ from backend.retrieval.embeddings import EMBEDDING_DIMENSIONS
 from backend.retrieval.reranker import RerankWeights, rerank_retrieval
 from backend.retrieval.relationship_filter import filter_relationships
 from backend.validation import validate_sql_structure
-from backend.llm.ollama_client import DEFAULT_MODEL, OllamaError, generate
 from backend.llm.sql_generator import extract_sql, validate_read_only
 from backend.database.executor import execute_sql, ExecutionResult
 from backend.correction import SQLCorrector, build_correction_context_text
 from backend.evaluation.evaluator import results_equal
+from backend.config import (  # noqa: E402
+    DEFAULT_DB_PATH as DEFAULT_DB,
+    get_index_dir,
+    LLM_MODEL as DEFAULT_MODEL,
+    LLM_PROVIDER,
+    LLM_TIMEOUT,
+    PIPELINE_MAX_CORRECTION_ATTEMPTS as MAX_CORRECTION_ATTEMPTS,
+    PIPELINE_CORRECTION_TIMEOUT as CORRECTION_TIMEOUT,
+)
+from backend.llm.unified_client import LLMError, generate, probe_llm
 from backend.pipeline.pipeline_result import (
     PipelineResult,
     PipelineTimer,
@@ -48,8 +57,7 @@ from backend.pipeline.pipeline_result import (
     CorrectionStage,
 )
 
-DEFAULT_DB = Path(__file__).resolve().parents[2] / "backend" / "data" / "enterprise.db"
-DEFAULT_INDEX_DIR = Path(__file__).resolve().parents[2] / "evaluation" / "index" / "l9"
+DEFAULT_INDEX_DIR = get_index_dir()
 
 
 def split_multiple_questions(text: str) -> List[str]:
@@ -637,10 +645,15 @@ QUESTION
 SQL:"""
 
         try:
-            raw_response, _ = generate(prompt, model=self.config.llm_model, timeout=60)
+            raw_response, _ = generate(
+                prompt,
+                model=self.config.llm_model,
+                provider=LLM_PROVIDER,
+                timeout=60,
+            )
             sql = extract_sql(raw_response)
             validate_read_only(sql)
-        except (OllamaError, ValueError) as exc:
+        except (LLMError, ValueError) as exc:
             return GenerationStage(
                 raw_response=str(exc),
                 generated_sql="",
