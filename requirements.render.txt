@@ -1,3 +1,8 @@
+# Slim production requirements for Render free tier.
+# Deliberately EXCLUDES torch / sentence-transformers / whisper / pyaudio:
+# - embeddings use the dependency-free CountVectorEmbedder (FAKE_EMBEDDER=true)
+# - LLM runs via OpenRouter cloud API (no Ollama on Render)
+# - voice endpoints degrade gracefully (browser mic still works for text path)
 fastapi
 uvicorn[standard]
 requests

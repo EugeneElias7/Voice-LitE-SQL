@@ -3,22 +3,30 @@ services:
     name: voice-lite-sql-api
     runtime: python
     buildCommand: |
-      pip install -r requirements.txt
+      pip install -r requirements.render.txt
+      npm --prefix frontend install && npm --prefix frontend run build
     startCommand: python start_server.py
+    healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
         value: 3.11
       - key: LLM_PROVIDER
-        value: openai
-      - key: LLM_MODEL
-        value: gpt-4o-mini
-      - key: OPENAI_API_KEY
+        value: openrouter
+      - key: OPENROUTER_MODEL
+        value: nvidia/nemotron-3-super-120b-a12b:free
+      - key: OPENROUTER_API_KEY
         sync: false
+      - key: LLM_MODEL
+        value: nvidia/nemotron-3-super-120b-a12b:free
+      - key: FAKE_EMBEDDER
+        value: "true"
       - key: EMBEDDING_MODEL
         value: all-MiniLM-L6-v2
       - key: DATABASE_PATH
         value: /opt/render/project/src/backend/data/enterprise.db
       - key: INDEX_DIR
-        value: /opt/render/project/src/evaluation/index
+        value: /tmp/voice-lite-sql-index
       - key: SEED_DB_ON_STARTUP
         value: "true"
+      - key: FRONTEND_ORIGINS
+        value: https://voice-lite-sql-three.vercel.app,https://voice-lite-sql.vercel.app

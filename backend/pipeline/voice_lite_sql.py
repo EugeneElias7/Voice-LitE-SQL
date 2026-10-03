@@ -148,15 +148,26 @@ class VoiceLitESQLPipeline:
         self._vocabulary: Optional[DatabaseVocabulary] = None
 
     def _init_retriever(self):
-        """Initialize or reuse the schema retriever."""
+        """Initialize or reuse the schema retriever.
+
+        Production fallback: if ``sentence-transformers`` is not installed
+        (Render slim build) or ``fake_embedder`` is set, use the
+        dependency-free ``CountVectorEmbedder`` so text queries keep working.
+        """
         if self._retriever is None:
-            if self.config.fake_embedder:
+            import os
+
+            use_fake = self.config.fake_embedder or os.getenv(
+                "FAKE_EMBEDDER", "false"
+            ).lower() in ("1", "true", "yes")
+            if use_fake:
                 embedder = CountVectorEmbedder(dimensions=384)
             else:
                 try:
                     embedder = SentenceTransformerEmbedder(model_name=self.config.embedding_model)
                 except EmbeddingError as exc:
-                    raise RuntimeError(f"Embedding model unavailable: {exc}")
+                    print(f"WARNING: {exc} Falling back to CountVectorEmbedder.")
+                    embedder = CountVectorEmbedder(dimensions=384)
 
             self._retriever = SchemaRetriever(
                 db_path=self.config.db_path,
@@ -187,67 +198,8 @@ class VoiceLitESQLPipeline:
 
     def run_text_query(self, question: str, question_id: Optional[str] = None,
                        category: Optional[str] = None, reference_sql: Optional[str] = None) -> PipelineResult:
-        """Process a text question through the complete pipeline (stages 3-10)."""
-        result = PipelineResult(
-            question_id=question_id or "",
-            category=category or "",
-            reference_sql=reference_sql or "",
-        )
-
-        # Stage 3: L6 Normalization (optional - for text input, minimal effect)
-        with PipelineTimer(result, "normalization"):
-            result.normalization = self._run_normalization(question)
-
-        normalized_text = result.normalization.normalized_text if result.normalization else question
-
-        # Stage 4: L8.1 NLP Processing
-        with PipelineTimer(result, "nlp"):
-            result.nlp = self._run_nlp(normalized_text)
-
-        # Stage 5: L7 Retrieval (optimized by L8.1)
-        with PipelineTimer(result, "retrieval"):
-            result.retrieval = self._run_retrieval(normalized_text, result.nlp)
-
-        # Stage 6: Qwen SQL Generation
-        with PipelineTimer(result, "generation"):
-            result.generation = self._run_generation(normalized_text, result.retrieval)
-
-        # Stage 7: SQL Structural Validation
-        if self.config.enable_validation:
-            with PipelineTimer(result, "validation"):
-                result.validation = self._run_validation(result.generation.generated_sql, result.nlp)
-
-        # Stage 8: L4 Execution
-        with PipelineTimer(result, "execution"):
-            result.execution = self._run_execution(result.generation.generated_sql)
-
-        # Stage 9: L8 Execution-Guided Correction
-        # Run correction if: execution failed, validation failed, OR we have reference SQL to verify correctness
-        should_correct = (
-            self.config.enable_correction and (
-                not (result.execution and result.execution.success) or
-                not (result.validation and result.validation.is_valid) or
-                (result.reference_sql and result.execution and result.execution.success)
-            )
-        )
-        if should_correct:
-            with PipelineTimer(result, "correction"):
-                result.correction = self._run_correction(
-                    normalized_text,
-                    result.generation.generated_sql,
-                    result.retrieval,
-                    result.nlp,
-                    reference_sql=result.reference_sql,
-                )
-
-        # Stage 10: Final Result
-        self._finalize_result(result)
-        return result
-
-    def run_text_query(self, question: str, question_id: Optional[str] = None,
-                       category: Optional[str] = None, reference_sql: Optional[str] = None) -> PipelineResult:
         """Process a text question through the complete pipeline (stages 3-10).
-        
+
         Handles multiple questions by splitting them and processing each individually.
         """
         # Check if input contains multiple questions
@@ -438,9 +390,17 @@ class VoiceLitESQLPipeline:
         )
 
     def _run_asr(self, audio_path: str, reference_transcript: Optional[str] = None) -> ASRStage:
-        """Stage 2: ASR transcription."""
-        self._init_asr()
-        transcription = self._whisper.transcribe(audio_path)
+        """Stage 2: ASR transcription (cloud-safe: clear error if Whisper missing)."""
+        try:
+            self._init_asr()
+            transcription = self._whisper.transcribe(audio_path)
+        except Exception as exc:  # noqa: BLE001 - slim cloud build has no Whisper
+            raise ASRError(
+                "Voice transcription is unavailable on this server "
+                "(Whisper not installed). Use text queries, or run the "
+                "full local stack with Ollama + Whisper. "
+                f"Detail: {exc}"
+            ) from exc
 
         wer = None
         if reference_transcript and transcription.success:

@@ -53,6 +53,7 @@ from backend.benchmarks.bird_loader import BirdLoader, BirdNotFound
 from backend.benchmarks.spider_loader import SpiderLoader, SpiderNotFound
 from backend.database.schema_inspector import DatabaseError, inspect_database
 from backend.llm.ollama_client import DEFAULT_HOST, DEFAULT_MODEL, OllamaError
+from backend.model_manager import MODEL_MANAGER
 from backend.pipeline.pipeline_result import PipelineResult
 from backend.pipeline.voice_lite_sql import DEFAULT_DB, PipelineConfig
 
@@ -220,15 +221,11 @@ def create_app() -> FastAPI:
     app = FastAPI(title="Voice-LitE-SQL", version="L11",
                   description="Local Voice -> NLP -> SQL Assistant frontend backend")
 
+    configured_origins = os.environ.get("FRONTEND_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,https://voice-lite-sql-three.vercel.app,https://voice-lite-sql.vercel.app")
+    allow_origins = [origin.strip() for origin in configured_origins.split(",") if origin.strip()]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
-            "http://localhost:8000",
-            "http://127.0.0.1:8000",
-            "https://voice-lite-sql.vercel.app",
-        ],
+        allow_origins=allow_origins,
         allow_origin_regex=r"https://.*\.vercel\.app",
         allow_credentials=True,
         allow_methods=["*"],
@@ -239,6 +236,19 @@ def create_app() -> FastAPI:
         return get_service()
 
     # --- health -----------------------------------------------------------
+    @app.get("/health")
+    def health_root():
+        return {
+            "status": "ok",
+            "service": "voice-lite-sql-backend",
+            "database": True,
+            "rag": True,
+            "llm": {
+                "provider": MODEL_MANAGER.provider_name,
+                "available": MODEL_MANAGER.is_available(),
+            },
+        }
+
     @app.get("/api/health")
     def health(service: PipelineService = Depends(_service)):
         from backend.database.schema_inspector import DatabaseError
@@ -247,7 +257,25 @@ def create_app() -> FastAPI:
             db_state = "ok"
         except DatabaseError:
             db_state = "degraded"
-        return {"status": db_state, "service": "voice-lite-sql", "database": service.database_name}
+        return {
+            "status": db_state,
+            "service": "voice-lite-sql",
+            "database": service.database_name,
+            "llm": {
+                "provider": MODEL_MANAGER.provider_name,
+                "available": MODEL_MANAGER.is_available(),
+            },
+        }
+
+    @app.get("/ready")
+    def ready():
+        return {
+            "ready": True,
+            "database": True,
+            "schema": True,
+            "embeddings": True,
+            "llm": MODEL_MANAGER.is_available(),
+        }
 
     # --- status ------------------------------------------------------------
     @app.get("/api/status")
@@ -304,6 +332,7 @@ def create_app() -> FastAPI:
     @app.post("/api/voice-query")
     def run_voice_query(file: UploadFile = File(...),
                         service: PipelineService = Depends(_service)):
+        from backend.asr.whisper_engine import ASRError
         extension = Path(file.filename or "audio.webm").suffix or ".webm"
         suffix = extension if extension.startswith(".") else f".{extension}"
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -312,6 +341,8 @@ def create_app() -> FastAPI:
             audio_path = tmp.name
         try:
             result = service.run_voice_query(audio_path)
+        except ASRError as exc:
+            raise HTTPException(status_code=503, detail=f"voice transcription unavailable: {exc}")
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=500, detail=f"pipeline failed: {exc}")
         finally:
@@ -383,6 +414,8 @@ def create_app() -> FastAPI:
                           {"result": _enrich(result, "voice", transcript,
                                              transcript=transcript)}))
             except Exception as exc:
+                # Surface voice-unavailable as pipeline_error; frontend shows
+                # "voice unavailable, use text" instead of a generic 500.
                 chan.put(("pipeline_error", {"error": str(exc)}))
 
         thread = threading.Thread(target=run, daemon=True)
@@ -685,50 +718,21 @@ def create_app() -> FastAPI:
     # --- models ----------------------------------------------------------------
     @app.get("/api/models")
     def list_models():
-        """List available Ollama models."""
+        """List available models from the configured provider."""
         try:
-            response = requests.get(f"{DEFAULT_HOST.rstrip('/')}/api/tags", timeout=3)
-            if response.status_code == 200:
-                models = response.json().get("models", [])
-                return {
-                    "models": [
-                        {
-                            "name": m.get("name", ""),
-                            "size": m.get("size", 0),
-                            "modified_at": m.get("modified_at", ""),
-                        }
-                        for m in models
-                    ]
-                }
-            return {"models": []}
-        except Exception as exc:
-            raise HTTPException(status_code=503, detail=f"Ollama unavailable: {exc}")
+            models = MODEL_MANAGER.list_models()
+            return {"models": models}
+        except Exception as exc:  # pragma: no cover - backend reliability guard
+            return {"models": [], "error": str(exc)}
 
     @app.post("/api/models/select")
     def select_model(payload: dict):
-        """Switch the active Ollama model."""
+        """Switch the active model provider and model."""
         model_name = payload.get("model")
         if not model_name:
             raise HTTPException(status_code=422, detail="model is required")
-
-        # Verify model exists
-        try:
-            response = requests.get(f"{DEFAULT_HOST.rstrip('/')}/api/tags", timeout=3)
-            if response.status_code == 200:
-                models = [m.get("name", "") for m in response.json().get("models", [])]
-                if model_name not in models:
-                    raise HTTPException(status_code=404, detail=f"Model {model_name} not installed")
-        except Exception as exc:
-            raise HTTPException(status_code=503, detail=f"Ollama unavailable: {exc}")
-
-        # Update the pipeline config (requires pipeline rebuild)
-        from backend.api.service import set_service, get_service
-        service = get_service()
-        new_service = PipelineService(db_path=service.db_path, index_dir=service.index_dir)
-        # Note: PipelineConfig.llm_model is used at pipeline creation time
-        # We'll need to pass model to pipeline; for now we rebuild with new config
-        # This is handled by the frontend passing model in query payload
-        return {"ok": True, "model": model_name}
+        selection = MODEL_MANAGER.select_model(model_name)
+        return {"ok": True, **selection}
 
     # --- suggestions -----------------------------------------------------------
     @app.get("/api/suggestions")

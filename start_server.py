@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 # Ensure we can import from backend
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from backend.config import get_database_path, SEED_DB_ON_STARTUP

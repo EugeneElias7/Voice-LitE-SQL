@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from backend.retrieval.chroma_store import DEFAULT_COLLECTION_NAME, SchemaIndex
 from backend.retrieval.embeddings import (
     DEFAULT_EMBEDDING_MODEL,
+    CountVectorEmbedder,
     SentenceTransformerEmbedder,
 )
 from backend.retrieval.schema_documents import (
@@ -129,9 +130,19 @@ class SchemaRetriever:
         self.embedding_dimensions = embedding_dimensions
         self.top_k = top_k
 
-        self._embedder = embedder or SentenceTransformerEmbedder(
-            model_name=embedding_model
-        )
+        self._embedder = embedder
+        if self._embedder is None:
+            import os
+
+            use_fake = os.getenv("FAKE_EMBEDDER", "false").lower() in ("1", "true", "yes")
+            if use_fake:
+                self._embedder = CountVectorEmbedder(dimensions=embedding_dimensions)
+            else:
+                try:
+                    self._embedder = SentenceTransformerEmbedder(model_name=embedding_model)
+                except Exception as exc:  # noqa: BLE001 - slim cloud build fallback
+                    print(f"WARNING: embedding model unavailable ({exc}); using CountVectorEmbedder.")
+                    self._embedder = CountVectorEmbedder(dimensions=embedding_dimensions)
         self._documents = generate_schema_documents(db_path)
         self._document_by_id = documents_by_id(self._documents)
 
