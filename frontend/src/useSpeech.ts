@@ -22,7 +22,7 @@ export function useSpeech(): SpeechController {
 
   const speak = useCallback(
     async (text: string) => {
-      const clean = String(text || '').trim()
+      const clean = String(text || '').trim().slice(0, 500)
       if (!clean) return
       if (typeof window === 'undefined') {
         setUnavailable('Speech is not available in this environment.')
@@ -31,9 +31,29 @@ export function useSpeech(): SpeechController {
       if (speaking) return
       setSpeaking(true)
       setPaused(false)
-      setLoading(true)
       setUnavailable(null)
 
+      // 1) Free browser voice first: works on Vercel + Render, no backend.
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel()
+          await new Promise<void>((resolve) => {
+            const utter = new SpeechSynthesisUtterance(clean)
+            utter.lang = 'en-US'
+            utter.rate = 1
+            utter.onend = () => resolve()
+            utter.onerror = () => resolve()
+            window.speechSynthesis.speak(utter)
+          })
+          setSpeaking(false)
+          return
+        }
+      } catch {
+        /* fall through to backend (local dev only) */
+      }
+
+      // 2) Backend Windows SAPI fallback (local dev only; 503 on Render).
+      setLoading(true)
       abortRef.current = new AbortController()
       try {
         // Use a female voice if supported by backend (e.g., "af_heart", "af_bella", "af_nicole", etc.)
@@ -65,6 +85,9 @@ export function useSpeech(): SpeechController {
   )
 
   const stop = useCallback(() => {
+    try {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+    } catch { /* unsupported */ }
     if (audioRef.current) {
       audioRef.current.pause()
       audioRef.current = null

@@ -106,8 +106,12 @@ export function QueryInput({
     guardRef.current = true
     const browserTranscript = recorder.snapshotTranscript()
     const file = await recorder.stop()
-    if (file) onVoiceFile(file, browserTranscript)
-    else if (browserTranscript.trim()) onChange(browserTranscript.trim())
+    try {
+      if (file) await onVoiceFile(file, browserTranscript)
+      else if (browserTranscript.trim()) onChange(browserTranscript.trim())
+    } finally {
+      recorder.setVoiceState(browserTranscript.trim() ? 'ready' : 'idle')
+    }
   }, [recorder, onVoiceFile, onChange])
 
   const onPointerLeave = useCallback(() => {

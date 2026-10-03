@@ -60,7 +60,11 @@ export function VoiceButton({
     guardRef.current = true
     const browserTranscript = recorder.snapshotTranscript()
     const file = await recorder.stop()
-    if (file) onVoiceFile(file, browserTranscript)
+    try {
+      if (file) await onVoiceFile(file, browserTranscript)
+    } finally {
+      recorder.setVoiceState(browserTranscript.trim() ? 'ready' : 'idle')
+    }
   }, [recorder, onVoiceFile])
 
   const onPointerLeave = useCallback(() => {

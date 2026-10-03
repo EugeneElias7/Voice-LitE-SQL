@@ -81,12 +81,18 @@ export function QueryComposer({
     if (recorder.voiceState === 'transcribing') return
     const browserTranscript = recorder.snapshotTranscript()
     const file = await recorder.stop()
-    if (file) {
-      onVoiceFile(file, browserTranscript)
-    } else if (browserTranscript.trim()) {
-      // Mic produced no audio blob (e.g. browser blocked recording) but the
-      // free Web Speech API still heard text — deliver it as a text query.
-      onChange(browserTranscript.trim())
+    try {
+      if (file) {
+        await onVoiceFile(file, browserTranscript)
+      } else if (browserTranscript.trim()) {
+        // Mic produced no audio blob (e.g. browser blocked recording) but the
+        // free Web Speech API still heard text — deliver it as a text query.
+        onChange(browserTranscript.trim())
+      }
+    } finally {
+      // Always leave the transcribing state, otherwise the UI loops on
+      // "Transcribing…" forever (backend Whisper is 503 on Render cloud).
+      recorder.setVoiceState(browserTranscript.trim() ? 'ready' : 'idle')
     }
     requestAnimationFrame(() => textareaRef.current?.focus())
   }, [recorder, onVoiceFile, onChange])
