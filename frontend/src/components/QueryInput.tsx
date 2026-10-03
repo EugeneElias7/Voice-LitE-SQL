@@ -10,7 +10,7 @@ interface QueryInputProps {
   value: string
   onChange: (value: string) => void
   onSubmit: () => void
-  onVoiceFile: (file: File) => void
+  onVoiceFile: (file: File, browserTranscript?: string) => void
   disabled: boolean
   processing: boolean
   onAbort: () => void
@@ -104,9 +104,11 @@ export function QueryInput({
   const onPointerUp = useCallback(async () => {
     if (guardRef.current) return
     guardRef.current = true
+    const browserTranscript = recorder.snapshotTranscript()
     const file = await recorder.stop()
-    if (file) onVoiceFile(file)
-  }, [recorder, onVoiceFile])
+    if (file) onVoiceFile(file, browserTranscript)
+    else if (browserTranscript.trim()) onChange(browserTranscript.trim())
+  }, [recorder, onVoiceFile, onChange])
 
   const onPointerLeave = useCallback(() => {
     if (recorder.recording) {

@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { useRecorder } from '../useRecorder'
 
 interface VoiceButtonProps {
-  onVoiceFile: (file: File) => void
+  onVoiceFile: (file: File, browserTranscript?: string) => void
   disabled: boolean
   processing: boolean
   onPermissionDenied: (message: string) => void
@@ -58,8 +58,9 @@ export function VoiceButton({
   const onPointerUp = useCallback(async () => {
     if (guardRef.current) return
     guardRef.current = true
+    const browserTranscript = recorder.snapshotTranscript()
     const file = await recorder.stop()
-    if (file) onVoiceFile(file)
+    if (file) onVoiceFile(file, browserTranscript)
   }, [recorder, onVoiceFile])
 
   const onPointerLeave = useCallback(() => {

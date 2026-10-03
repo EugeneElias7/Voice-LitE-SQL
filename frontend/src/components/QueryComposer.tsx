@@ -6,7 +6,7 @@ interface QueryComposerProps {
   value: string
   onChange: (value: string) => void
   onSubmit: (text: string) => void
-  onVoiceFile: (file: File) => void
+  onVoiceFile: (file: File, browserTranscript?: string) => void
   disabled: boolean
   processing: boolean
   onAbort: () => void
@@ -79,12 +79,17 @@ export function QueryComposer({
 
   const stopVoice = useCallback(async () => {
     if (recorder.voiceState === 'transcribing') return
+    const browserTranscript = recorder.snapshotTranscript()
     const file = await recorder.stop()
     if (file) {
-      onVoiceFile(file)
+      onVoiceFile(file, browserTranscript)
+    } else if (browserTranscript.trim()) {
+      // Mic produced no audio blob (e.g. browser blocked recording) but the
+      // free Web Speech API still heard text — deliver it as a text query.
+      onChange(browserTranscript.trim())
     }
     requestAnimationFrame(() => textareaRef.current?.focus())
-  }, [recorder, onVoiceFile])
+  }, [recorder, onVoiceFile, onChange])
 
   // While voice recording, Enter just stops the recording. The transcript
   // stays in the composer, and the user presses Enter again (or clicks Send)

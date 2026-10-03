@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { PipelineResult } from '../types'
+import { getApiBase } from '../api'
 
 interface AnswerCardProps {
   result: PipelineResult
@@ -18,13 +19,38 @@ export function AnswerCard({ result }: AnswerCardProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const speak = useRef(async (text: string) => {
-    if (speaking) return
+    // Toggle off if already speaking (both browser + backend audio paths).
+    if (speaking) {
+      try { speechSynthesis.cancel() } catch { /* unsupported */ }
+      try { await audioRef.current?.pause() } catch { /* no audio */ }
+      audioRef.current = null
+      setSpeaking(false)
+      return
+    }
+    const clean = text.trim().slice(0, 500)
+    if (!clean) return
     setSpeaking(true)
+    // 1) Browser voice first: free, works on Vercel + Render production.
     try {
-      const res = await fetch('/api/tts', {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel()
+        const utterance = new SpeechSynthesisUtterance(clean)
+        utterance.lang = 'en-US'
+        utterance.rate = 1
+        utterance.onend = () => setSpeaking(false)
+        utterance.onerror = () => setSpeaking(false)
+        speechSynthesis.speak(utterance)
+        return
+      }
+    } catch {
+      /* fall through to backend */
+    }
+    // 2) Backend Windows SAPI (local dev only; 503 on Render Linux).
+    try {
+      const res = await fetch(`${getApiBase()}/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: clean }),
       })
       if (!res.ok) throw new Error(`TTS failed: ${res.status}`)
       const blob = await res.blob()
@@ -34,14 +60,15 @@ export function AnswerCard({ result }: AnswerCardProps) {
       audioRef.current.onerror = () => setSpeaking(false)
       await audioRef.current.play()
     } catch {
-      // fallback to speechSynthesis
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'en-US'
-      utterance.onend = () => setSpeaking(false)
-      utterance.onerror = () => setSpeaking(false)
-      speechSynthesis.speak(utterance)
+      setSpeaking(false)
     }
   })
+
+  // Stop speaking when answer changes / unmounts.
+  useEffect(() => () => {
+    try { speechSynthesis.cancel() } catch { /* unsupported */ }
+    try { void audioRef.current?.pause() } catch { /* no audio */ }
+  }, [])
 
   const handleSpeak = (text: string) => {
     speak.current(text)

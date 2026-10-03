@@ -6,7 +6,7 @@ interface HeroProps {
   question: string
   onChange: (value: string) => void
   onSubmit: () => void
-  onVoiceFile: (file: File) => void
+  onVoiceFile: (file: File, browserTranscript?: string) => void
   disabled: boolean
   processing: boolean
   onAbort: () => void

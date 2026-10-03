@@ -767,7 +767,17 @@ def create_app() -> FastAPI:
     # --- TTS -------------------------------------------------------------------
     @app.post("/api/tts")
     def text_to_speech(payload: dict):
-        """Generate speech from text using local TTS (Windows SAPI with improved voice)."""
+        """Generate speech from text using local TTS (Windows SAPI with improved voice).
+
+        Cloud-safe: Render runs Linux, so SAPI can never work there. Return a
+        clear 503 so the frontend uses free in-browser speechSynthesis instead.
+        """
+        import sys as _sys
+        if _sys.platform != "win32":
+            raise HTTPException(
+                status_code=503,
+                detail="server TTS is Windows-local only; use browser speechSynthesis",
+            )
         text = payload.get("text", "")
         voice = payload.get("voice", "af_heart")  # Default to female voice
         if not text:

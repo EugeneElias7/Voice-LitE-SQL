@@ -196,8 +196,18 @@ export default function App() {
     }
   }, [])
 
-  // Handle voice file from QueryComposer - transcribe only, don't run full pipeline
-  const handleVoiceFile = useCallback(async (file: File) => {
+  // Handle voice file from QueryComposer.
+  // Production order (free, works on Render):
+  // 1. browser Web Speech transcript (no backend, no cost) — use immediately.
+  // 2. backend Whisper (local dev only; 503 on Render slim build).
+  const handleVoiceFile = useCallback(async (file: File, browserTranscript?: string) => {
+    const browserText = (browserTranscript || '').trim()
+    if (browserText) {
+      console.log('[Voice] Browser transcript:', browserText)
+      setDraftQuestion(browserText)
+      beginTextRun(browserText)
+      return
+    }
     if (!file || file.size === 0) {
       console.warn('Voice file is empty, skipping transcription')
       return
@@ -207,10 +217,12 @@ export default function App() {
     if (transcript) {
       console.log('[Voice] Transcript received:', transcript)
       setDraftQuestion(transcript)
+      beginTextRun(transcript)
     } else {
-      console.warn('[Voice] No transcript returned from Whisper')
+      console.warn('[Voice] No transcript returned (backend Whisper offline on cloud; use Chrome/Edge mic which transcribes in-browser)')
+      setStreamError('Voice transcription needs Chrome/Edge in-browser mic. Type your question instead — it runs the same pipeline.')
     }
-  }, [transcribeVoiceFile])
+  }, [transcribeVoiceFile, beginTextRun])
 
   useEffect(() => {
     if (processing && (result || streamError)) {
