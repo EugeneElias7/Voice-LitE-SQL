@@ -96,8 +96,12 @@ class SchemaIndex:
         deterministic ``doc_id`` means repeated indexing never duplicates.
         """
         docs = list(documents)
-        ids = [doc.doc_id for doc in docs]
-        texts = [doc.text for doc in docs]
+        deduped = {}
+        for doc in docs:
+            deduped[doc.doc_id] = doc
+        ordered = list(deduped.values())
+        ids = [doc.doc_id for doc in ordered]
+        texts = [doc.text for doc in ordered]
 
         if hasattr(embedder, "fit"):
             embedder.fit(texts)
@@ -106,11 +110,12 @@ class SchemaIndex:
         own_embeddings = [
             [float(value) for value in row] for row in embeddings[: len(ids)]
         ]
-        self.collection.upsert(
-            ids=ids,
-            documents=texts,
-            embeddings=own_embeddings,
-        )
+        if ids:
+            self.collection.upsert(
+                ids=ids,
+                documents=texts,
+                embeddings=own_embeddings,
+            )
         return len(ids)
 
     # ------------------------------------------------------------------
